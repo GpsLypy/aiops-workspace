@@ -1,0 +1,88 @@
+name: Verify production candidate
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  agentscope:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      matrix:
+        worker-mode: [cold, prefork]
+    env:
+      AGENTSCOPE_WORKER_MODE: ${{ matrix.worker-mode }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.11.26'
+      - run: npm ci
+      - run: uv sync --project agent-worker --frozen
+      - run: npm test
+      - run: npm run agent:audit
+        if: matrix.worker-mode == 'prefork'
+      - run: npm run agent:eval
+        if: matrix.worker-mode == 'prefork'
+      - run: npm run agent:eval:dts -- --repeat 3
+        if: matrix.worker-mode == 'prefork'
+      - name: Build pending fixture acceptance (must not approve a fixture)
+        if: matrix.worker-mode == 'prefork'
+        run: |
+          npm run agent:acceptance -- --report test-results/agentscope/dts-evaluation-fixture.json --template test-results/agentscope/review-pending.json
+          set +e
+          npm run agent:acceptance -- --report test-results/agentscope/dts-evaluation-fixture.json --review test-results/agentscope/review-pending.json
+          result=$?
+          set -e
+          test "$result" -eq 2
+      - run: npm run build
+        if: matrix.worker-mode == 'prefork'
+      - run: npx playwright install --with-deps chromium
+        if: matrix.worker-mode == 'prefork'
+      - run: npm run test:rollout:browser
+        if: matrix.worker-mode == 'prefork'
+      - run: npm run docs:check
+        if: matrix.worker-mode == 'prefork'
+      - run: npm run test:browser
+        if: matrix.worker-mode == 'prefork'
+      - run: npm run test:notifications:browser
+        if: matrix.worker-mode == 'prefork'
+      - run: npm run test:load
+        if: matrix.worker-mode == 'prefork'
+      - run: npm run eval
+        if: matrix.worker-mode == 'prefork'
+      - run: npm audit --omit=dev --audit-level=high
+        if: matrix.worker-mode == 'prefork'
+      - run: npm sbom --sbom-format=cyclonedx > sbom.json
+        if: matrix.worker-mode == 'prefork'
+      - run: npm run agent:eval:enhancements
+        if: matrix.worker-mode == 'prefork'
+      - run: docker build -t aiops:agentscope-candidate .
+        if: matrix.worker-mode == 'prefork'
+      - run: npm run agent:container -- aiops:agentscope-candidate --enhancements --rollout
+        if: matrix.worker-mode == 'prefork'
+      - uses: aquasecurity/setup-trivy@v0.3.1
+        if: matrix.worker-mode == 'prefork'
+        with:
+          version: v0.74.0
+          cache: true
+      - run: npm run agent:image:audit -- aiops:agentscope-candidate
+        if: matrix.worker-mode == 'prefork'
+      - uses: actions/upload-artifact@v4
+        if: matrix.worker-mode == 'prefork' && always()
+        with:
+          name: agentscope-evidence
+          path: |
+            test-results/agentscope/
+            test-results/rollout/
+            test-results/production/
+            test-results/notifications/
+            docs/site/
+            dist/
+            sbom.json

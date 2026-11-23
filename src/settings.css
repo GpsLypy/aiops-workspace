@@ -1,0 +1,80 @@
+.modal-overlay.settings-overlay {
+  backdrop-filter: none;
+}
+
+.modal.settings-modal {
+  display: flex;
+  flex-direction: column;
+  height: min(780px, calc(100dvh - 50px));
+  max-height: calc(100dvh - 50px);
+  overflow: hidden;
+}
+
+.settings-modal > .modal-heading,
+.settings-modal > .settings-tabs {
+  flex-shrink: 0;
+}
+
+.settings-modal > .settings-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.settings-loading {
+  margin: 0 0 16px;
+  color: #7e899a;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+@media (max-width: 760px) {
+  .modal.settings-modal {
+    height: calc(100dvh - 30px);
+    max-height: calc(100dvh - 30px);
+  }
+}
+
+.timeout-settings {
+  margin-top: 24px;
+  padding-top: 2px;
+  border-top: 1px solid var(--line);
+}
+
+.timeout-settings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.timeout-settings-grid label {
+  display: block;
+  min-width: 0;
+  color: #354154;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.timeout-settings-grid input {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.timeout-settings-grid span {
+  display: block;
+  margin-top: 7px;
+  color: #7e899a;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.65;
+}
+
+@media (max-width: 480px) {
+  .timeout-settings-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}

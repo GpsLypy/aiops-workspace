@@ -1,0 +1,81 @@
+services:
+  aiops:
+    build: .
+    ports:
+      - "127.0.0.1:3001:3001"
+    environment:
+      APP_ORIGIN: ${APP_ORIGIN:?Set the public HTTPS origin}
+      COOKIE_SECURE: "true"
+      AUTH_MODE: ${AUTH_MODE:-local}
+      MASTER_KEY_FILE: /run/secrets/master-key
+      OUTBOUND_ALLOWED_ORIGINS: ${OUTBOUND_ALLOWED_ORIGINS:?Configure approved model and MCP origins}
+      OUTBOUND_PRIVATE_ORIGINS: ${OUTBOUND_PRIVATE_ORIGINS:-}
+      OUTBOUND_HTTP_ORIGINS: ${OUTBOUND_HTTP_ORIGINS:-}
+      IDENTITY_GATEWAY_SECRET: ${IDENTITY_GATEWAY_SECRET:-}
+      SETUP_TOKEN: ${SETUP_TOKEN:-}
+      MODEL_DATA_POLICY: ${MODEL_DATA_POLICY:-block}
+      HTTP_LOG: "true"
+      METRICS_TOKEN: ${METRICS_TOKEN:-}
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: ${OTEL_EXPORTER_OTLP_TRACES_ENDPOINT:-}
+      OTEL_TRACES_SAMPLE_RATE: ${OTEL_TRACES_SAMPLE_RATE:-1}
+      OTEL_PROPAGATE: ${OTEL_PROPAGATE:-false}
+      OTEL_EXPORT_TIMEOUT_MS: ${OTEL_EXPORT_TIMEOUT_MS:-2000}
+      AUDIT_EXPORT_FILE: /app/audit/events.jsonl
+      NOTIFICATION_WEBHOOK_URL: ${NOTIFICATION_WEBHOOK_URL:-}
+      NOTIFICATION_WEBHOOK_SECRET: ${NOTIFICATION_WEBHOOK_SECRET:-}
+      RUNBOOK_WEBHOOK_SECRET: ${RUNBOOK_WEBHOOK_SECRET:-}
+      ENABLE_AUTO_REMEDIATION: ${ENABLE_AUTO_REMEDIATION:-false}
+      RUN_TIMEOUT_MS: ${RUN_TIMEOUT_MS:-420000}
+      MAX_ACTIVE_RUNS: ${MAX_ACTIVE_RUNS:-8}
+      MAX_USER_RUNS: ${MAX_USER_RUNS:-2}
+      MAX_MCP_CALLS: ${MAX_MCP_CALLS:-4}
+      MAX_PENDING_RUNS: ${MAX_PENDING_RUNS:-100}
+      DAILY_TOKEN_LIMIT: ${DAILY_TOKEN_LIMIT:-1000000}
+      MODEL_PRICE_PER_MILLION: ${MODEL_PRICE_PER_MILLION:-0}
+      DAILY_COST_LIMIT: ${DAILY_COST_LIMIT:-0}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      MODEL_BASE_URL: ${MODEL_BASE_URL:-}
+      MODEL_API_TYPE: ${MODEL_API_TYPE:-responses}
+      MODEL_NAME: ${MODEL_NAME:-}
+      MODEL_API_KEY: ${MODEL_API_KEY:-}
+      MODEL_DIAGNOSTICS: ${MODEL_DIAGNOSTICS:-false}
+      AGENT_RUNTIME: ${AGENT_RUNTIME:-agentscope}
+      # Pass obsolete scope settings through only so startup rejects them explicitly.
+      # This variable must be empty; enhancement scope is configured in the administrator UI.
+      AGENTSCOPE_AGENT_IDS: ${AGENTSCOPE_AGENT_IDS:-}
+      AGENTSCOPE_WORKER_MODE: ${AGENTSCOPE_WORKER_MODE:-prefork}
+      AGENTSCOPE_POOL_SIZE: ${AGENTSCOPE_POOL_SIZE:-2}
+      AGENTSCOPE_POOL_MAX_RUNS: ${AGENTSCOPE_POOL_MAX_RUNS:-100}
+      AGENTSCOPE_POOL_MAX_AGE_MS: ${AGENTSCOPE_POOL_MAX_AGE_MS:-1800000}
+      AGENTSCOPE_POOL_QUEUE_MS: ${AGENTSCOPE_POOL_QUEUE_MS:-30000}
+      AGENTSCOPE_POOL_MAX_PENDING: ${AGENTSCOPE_POOL_MAX_PENDING:-100}
+      AGENTSCOPE_STARTUP_TIMEOUT_MS: ${AGENTSCOPE_STARTUP_TIMEOUT_MS:-15000}
+      AGENT_CONTEXT_MODE: ${AGENT_CONTEXT_MODE:-recent}
+      AGENT_CONTEXT_MAX_BYTES: ${AGENT_CONTEXT_MAX_BYTES:-16000}
+      AGENT_RETRIEVAL_MODE: ${AGENT_RETRIEVAL_MODE:-ranked}
+      AGENT_EVIDENCE_REPORTS: ${AGENT_EVIDENCE_REPORTS:-false}
+    volumes:
+      - aiops-data:/app/.data
+      - aiops-audit:/app/audit
+    secrets:
+      - master-key
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 128
+    mem_limit: ${AGENTSCOPE_MEMORY_LIMIT:-1g}
+    cpus: 2
+    stop_grace_period: 30s
+    restart: unless-stopped
+volumes:
+  aiops-data:
+  aiops-audit:
+secrets:
+  master-key:
+    file: ${MASTER_KEY_FILE:?Provide an existing external 32-byte master key}

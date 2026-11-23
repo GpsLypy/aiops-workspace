@@ -1,0 +1,34 @@
+import { useEffect, useState, type FormEvent } from 'react';
+import { api, post, errorText, dateText, type Resource, type User } from '../api';
+import { Button, Badge, Modal, Empty } from './ui';
+import { createRequestKey } from '../request-id';
+import Runbooks from './Runbooks';
+
+type Step = { id: string; tool: string; environment: string; status: string; arguments: unknown; policy: { risk: string; recovery: string; verification?: unknown }; result: unknown; verification: unknown; error?: string; expires: number };
+type Run = { id: string; user_id: string; status: string; created: string; tokens: number; cost: number; error?: string; steps: Step[]; result: unknown };
+type Health = { ready: boolean; database: boolean; freeBytes: number; emergencyStop: boolean; execution: { active: number; queued: number }; scheduler: { running: boolean; lastError?: string }; notifications: { id: string; kind: string; status: string; attempts: number }[] };
+const statuses: Record<string, string> = { queued: '排队中', running: '执行中', awaiting_approval: '等待审批', success: '成功', failed: '失败', unknown: '结果待确认', interrupted: '已中断', cancelled: '已取消', expired: '已过期', executing: '执行中', approved: '已批准' };
+export default function ExecutionCenter({ user, resources, close }: { user: User; resources: Resource[]; close: () => void }) {
+  const [runs, setRuns] = useState<Run[]>([]); const [health, setHealth] = useState<Health | null>(null);
+  const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const [selected, setSelected] = useState(''); const [notice, setNotice] = useState('');
+  const refresh = async () => { try { setRuns(await api<Run[]>('/executions')); if (user.role === 'admin') setHealth(await api<Health>('/operations')); } catch (e) { setError(errorText(e)); } };
+  useEffect(() => { void refresh(); const timer = setInterval(() => void refresh(), 5000); return () => clearInterval(timer); }, []);
+  const action = async (path: string, data: unknown = {}) => { setBusy(true); setError(''); try { await post(path, data); await refresh(); setNotice('操作已处理，请核对最新状态。'); } catch (e) { setError(errorText(e)); await refresh(); } finally { setBusy(false); } };
+  const submit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault(); const f = new FormData(e.currentTarget);
+    let args: unknown;
+    try { args = JSON.parse(String(f.get('arguments'))); } catch { setError('工具参数必须为有效 JSON 对象'); return; }
+    try { await action('/executions/tool', { resourceId: selected, tool: f.get('tool'), environment: f.get('environment'), arguments: args, requestKey: createRequestKey() }); } catch (error) { setError(errorText(error)); }
+  };
+  const resource = resources.find(r => r.id === selected);
+  return <Modal title="执行与审批中心" onClose={close} wide><div className="execution-center">
+    <p>这里记录每次执行、审批和结果核验。结果待确认时先只读核验，避免重复提交变更。</p>
+    {error && <div className="inline-error" role="alert">{error}</div>}{notice && <p role="status">{notice}</p>}
+    {health && <section className="detail-card"><h3>平台状态</h3><div className="execution-metrics"><Badge tone={health.ready ? 'green' : ''}>{health.ready ? '已就绪' : '未就绪'}</Badge><span>执行 {health.execution.active} · 排队 {health.execution.queued}</span><span>可用磁盘 {(health.freeBytes / 1024 ** 3).toFixed(1)} GB</span><span>{health.emergencyStop ? '紧急停止已启用' : '工具执行开放'}</span></div><form onSubmit={e => { e.preventDefault(); const f = new FormData(e.currentTarget); void action('/operations/emergency-stop', { enabled: !health.emergencyStop, reason: String(f.get('reason')) }); }}><label>操作原因<input name="reason" required minLength={3} maxLength={500} placeholder="填写停止或恢复执行的原因" /></label><Button disabled={busy} type="submit">{health.emergencyStop ? '恢复工具执行' : '紧急停止与取消在途执行'}</Button></form><details><summary>通知投递</summary>{health.notifications.map(n => <p key={n.id}>{n.kind} · {n.status} · 尝试 {n.attempts} 次</p>)}</details></section>}
+    <details className="detail-card"><summary>提交确定的工具操作</summary><form onSubmit={submit}><div className="form-grid"><label>MCP 服务<select required value={selected} onChange={e => setSelected(e.target.value)}><option value="">选择服务</option>{resources.filter(r => r.kind === 'mcp' && r.status === '已启用').map(r => <option value={r.id} key={r.id}>{r.name}</option>)}</select></label><label>工具<select name="tool" required>{resource?.allowedTools.map(t => <option key={t}>{t}</option>)}</select></label></div><label>目标环境<select name="environment" defaultValue="test"><option value="test">测试</option><option value="staging">预发布</option><option value="production">生产</option></select></label><label>确定的参数（JSON）<textarea name="arguments" defaultValue={'{\n  "service": "billing"\n}'} rows={5} required /></label><p>写操作先保存计划，审批绑定当前参数与资源版本；生产操作需要另一位管理员审批。</p><Button primary type="submit" disabled={busy || !selected}>提交操作计划</Button></form></details>
+    <div className="list-actions"><Button disabled={busy} onClick={() => void refresh()}>刷新执行记录</Button></div>
+    {user.role === 'admin' && <Runbooks user={user} />}
+    {!runs.length && <Empty text="尚无执行记录" />}
+    {runs.map(run => <section className="detail-card" key={run.id}><div className="execution-heading"><strong>{statuses[run.status] || run.status}</strong><small>{dateText(run.created)} · {run.tokens} tokens · 估算费用 {run.cost.toFixed(4)}</small></div><code className="execution-id">{run.id}</code>{run.error && <p className="inline-error">{run.error}</p>}{['running', 'queued', 'awaiting_approval'].includes(run.status) && <Button disabled={busy} onClick={() => void action(`/executions/${run.id}/cancel`)}>取消后续执行</Button>}{run.steps.map(step => <div className="execution-step" key={step.id}><h4>{step.tool} · {step.environment} · {statuses[step.status] || step.status}</h4><p>风险：{step.policy.risk}；审批有效期至 {dateText(new Date(step.expires).toISOString())}</p><pre>{JSON.stringify(step.arguments, null, 2)}</pre>{step.policy.recovery && <p>恢复说明：{step.policy.recovery}</p>}{step.policy.verification !== undefined && <details><summary>确定性核验规则</summary><pre>{JSON.stringify(step.policy.verification, null, 2)}</pre></details>}{step.verification !== null && <pre>{JSON.stringify(step.verification, null, 2)}</pre>}{step.error && <p className="inline-error">{step.error}</p>}{user.role === 'admin' && step.status === 'awaiting_approval' && <div className="list-actions"><Button primary disabled={busy || step.environment === 'production' && run.user_id === user.id} onClick={() => void action(`/approvals/${step.id}/approve`)}>批准当前计划并执行</Button><Button disabled={busy} onClick={() => void action(`/approvals/${step.id}/reject`)}>拒绝</Button></div>}{user.role === 'admin' && step.status === 'unknown' && <Button disabled={busy} onClick={() => void action(`/approvals/${step.id}/reconcile`)}>只读核验实际结果</Button>}</div>)}<details><summary>执行结果</summary><pre>{JSON.stringify(run.result, null, 2)}</pre></details></section>)}
+  </div></Modal>;
+}

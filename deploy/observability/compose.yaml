@@ -1,0 +1,59 @@
+services:
+  collector:
+    image: otel/opentelemetry-collector:0.136.0@sha256:98fd3b410ae8a939be9588f1580c4b7c3da6ebba49f5363df4259a827aabb779
+    command: ["--config=/etc/otelcol/config.yaml"]
+    ports:
+      - "127.0.0.1:${OTLP_HTTP_PORT:-4318}:4318"
+    volumes:
+      - ./collector.yaml:/etc/otelcol/config.yaml:ro
+    depends_on: [tempo]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 256m
+    pids_limit: 64
+    restart: unless-stopped
+  tempo:
+    image: grafana/tempo:2.8.2@sha256:0ef775495967cd5d7a6b2e146b6ea695d624803c8db8349fb8ce4164f719f9b7
+    command: ["-config.file=/etc/tempo.yaml"]
+    ports:
+      - "127.0.0.1:${TEMPO_HTTP_PORT:-3200}:3200"
+    volumes:
+      - ./tempo.yaml:/etc/tempo.yaml:ro
+      - tempo-data:/var/tempo
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 512m
+    pids_limit: 64
+    restart: unless-stopped
+  prometheus:
+    image: prom/prometheus:v3.5.0@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996
+    command:
+      - --config.file=/etc/prometheus/prometheus.yaml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=15d
+      - --web.listen-address=0.0.0.0:9090
+    ports:
+      - "127.0.0.1:${PROMETHEUS_HTTP_PORT:-9090}:9090"
+    volumes:
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yaml:ro
+      - ./rules.yaml:/etc/prometheus/rules.yaml:ro
+      - ${OBSERVABILITY_TARGETS_FILE:?Provide a file with distinct instance/workspace labels}:/etc/prometheus/targets.json:ro
+      - prometheus-data:/prometheus
+    secrets: [metrics-token]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 512m
+    pids_limit: 64
+    restart: unless-stopped
+volumes:
+  tempo-data:
+  prometheus-data:
+secrets:
+  metrics-token:
+    file: ${METRICS_TOKEN_FILE:?Provide the same external token configured on monitored instances}

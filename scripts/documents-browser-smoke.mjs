@@ -1,0 +1,214 @@
+import assert from 'node:assert/strict';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync, cpSync, statSync } from 'node:fs';
+import { join, resolve } from 'node:path';
+import { tmpdir } from 'node:os';
+import { chromium } from 'playwright';
+import { createDocuments } from '../server/documents.mjs';
+import { createApplication } from '../server/app.mjs';
+import { listen } from '../tests/fixtures.mjs';
+
+assert.ok(existsSync(resolve('dist/index.html')), '先执行 npm run build');
+const root = mkdtempSync(join(tmpdir(), 'aiops-documents-browser-'));
+const output = resolve('test-results/document-center'); mkdirSync(output, { recursive: true });
+for (const path of ['docs/site', 'deploy/sample', 'integrations/sample']) mkdirSync(join(root, path), { recursive: true });
+writeFileSync(join(root, 'README.md'), '# 项目说明\n\n测试说明');
+writeFileSync(join(root, 'docs/README.md'), '# 使用指南\n\n[从零开始](getting-started.md)\n\n[交互架构图](site/architecture.html)\n\n仅此文档包含的正文检索词。\n\n<script>window.badMarkdown = true</script>');
+writeFileSync(join(root, 'docs/getting-started.md'), '# 从零开始\n\n安装并启动项目。\n\n| 项目 | 说明 |\n| --- | --- |\n| 工作空间 | 文档浏览 |');
+writeFileSync(join(root, 'deploy/sample/README.md'), '# 部署文档');
+writeFileSync(join(root, 'integrations/sample/README.md'), '# 集成文档');
+let failBuild = false, releaseBuild;
+let barrier = null;
+const application = createApplication({ dataDir: join(root, 'data'), scheduler: false, documents: { root, rebuild: async () => {
+  if (barrier) await barrier;
+  if (failBuild) throw new Error('fixture build failed');
+  writeFileSync(join(root, 'docs/site/index.html'), readFileSync(join(root, 'docs/README.md'), 'utf8'));
+} } });
+const http = await listen(application.app);
+const browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_CHANNEL ? { channel: process.env.PLAYWRIGHT_CHANNEL } : {}) });
+const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+const errors = []; const checks = [];
+const externalRequests = [];
+page.on('pageerror', error => errors.push(error.message));
+page.on('request', request => { if (/^https?:/.test(request.url()) && new URL(request.url()).origin !== http.url) externalRequests.push(request.url()); });
+const overflow = async () => assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), '页面不能横向溢出');
+const openDoc = async path => {
+  const button = page.locator(`.documents-list button[title="${path}"]`);
+  const group = button.locator('..');
+  if (!await group.evaluate(element => element.open)) await group.locator('summary').click();
+  await button.click();
+};
+try {
+  await page.goto(http.url + '/#documents');
+  await page.getByLabel('用户名').fill('admin'); await page.getByLabel('密码', { exact: true }).fill('document-browser-test-password');
+  await page.getByLabel('显示名称').fill('文档管理员');
+  await page.getByRole('button', { name: '创建管理员并进入' }).click();
+  await page.locator('.document-card').first().waitFor();
+  assert.deepEqual(await page.locator('.sidebar > nav button').allTextContents().then(v => v.slice(0, 3)), ['AgentScope 入门', '文档中心', '知识库管理']);
+  assert.equal(await page.evaluate(() => window.badMarkdown), undefined);
+  checks.push('直接菜单入口与 Markdown 脚本清理');
+  const openDiagram = async link => {
+    const popup = page.waitForEvent('popup'); await link.click();
+    const viewer = await popup;
+    await viewer.frameLocator('iframe').locator('#node-workspace').waitFor();
+    assert.match(viewer.url(), /\/architecture.html$/); await viewer.close();
+  };
+  await openDiagram(page.getByRole('link', { name: '打开架构图（新标签页）', exact: true }));
+  checks.push('文档首页架构入口打开真实图形查看器');
+
+  await page.getByLabel('搜索项目文档').fill('正文检索词');
+  assert.equal(await page.locator('.document-card').count(), 1);
+  await page.getByLabel('搜索项目文档').fill('不存在的内容'); await page.getByText('没有匹配的文档，请调整关键词或分类').waitFor();
+  await page.getByLabel('搜索项目文档').fill('');
+  await page.getByLabel('文档分类').selectOption('部署与运维'); assert.equal(await page.locator('.document-card').count(), 2);
+  await page.getByLabel('文档分类').selectOption('全部文档');
+  checks.push('正文搜索、分类和空结果');
+
+  await page.locator('.document-card').filter({ hasText: 'docs/README.md' }).focus();
+  await page.keyboard.press('Enter');
+  await page.getByRole('button', { name: '编辑文档', exact: true }).waitFor();
+  assert.match(page.url(), /file=docs%2FREADME.md/);
+  await page.goBack(); await page.locator('.document-card').first().waitFor();
+  await page.goForward(); await page.getByRole('button', { name: '编辑文档', exact: true }).waitFor();
+  checks.push('卡片键盘打开、浏览器前进后退');
+  await openDiagram(page.locator('.documents-content').getByRole('link', { name: '交互架构图', exact: true }));
+  checks.push('正文相对架构链接映射到已发布查看器');
+
+  await page.locator('.documents-content').getByRole('link', { name: '从零开始', exact: true }).click();
+  await page.locator('.documents-content h1').filter({ hasText: '从零开始' }).waitFor();
+  await page.reload(); await page.locator('.documents-content h1').filter({ hasText: '从零开始' }).waitFor();
+  checks.push('文档相对链接与刷新保留选择');
+  await openDoc('docs/README.md'); await page.getByRole('button', { name: '编辑文档', exact: true }).click();
+  const textarea = page.getByLabel('文档 Markdown 原稿');
+  await textarea.fill('# 使用指南\n\n浏览器实际保存内容。');
+  await openDiagram(page.getByRole('link', { name: '打开架构图（新标签页）', exact: true }));
+  assert.equal(await textarea.inputValue(), '# 使用指南\n\n浏览器实际保存内容。');
+  checks.push('编辑时打开架构图保留当前文档草稿');
+  await page.getByRole('button', { name: '保存修改', exact: true }).click();
+  await page.getByText('已保存，离线文档网站已同步更新。', { exact: true }).waitFor();
+  assert.match(readFileSync(join(root, 'docs/README.md'), 'utf8'), /浏览器实际保存内容/);
+  await page.reload(); await page.getByText('浏览器实际保存内容。', { exact: true }).waitFor();
+  checks.push('编辑预览、真实文件保存和刷新回读');
+
+  await page.getByRole('button', { name: '编辑文档', exact: true }).click(); await textarea.fill('# 冲突草稿');
+  writeFileSync(join(root, 'docs/README.md'), '# 外部编辑者版本');
+  await page.getByRole('button', { name: '保存修改', exact: true }).click();
+  await page.getByRole('alert').filter({ hasText: '文档已被其他人修改' }).waitFor();
+  assert.equal(await textarea.inputValue(), '# 冲突草稿'); assert.equal(readFileSync(join(root, 'docs/README.md'), 'utf8'), '# 外部编辑者版本');
+  const download = page.waitForEvent('download'); await page.getByRole('button', { name: '下载草稿', exact: true }).click(); assert.equal((await download).suggestedFilename(), 'README.md');
+  checks.push('版本冲突保留双方内容与草稿下载');
+
+  let dialogs = 0;
+  const dismiss = dialog => { dialogs++; void dialog.dismiss(); }; page.on('dialog', dismiss);
+  await page.getByRole('button', { name: '全部文档', exact: true }).click(); assert.equal(await textarea.inputValue(), '# 冲突草稿');
+  await page.goBack(); await page.waitForURL(/file=docs%2FREADME.md/); assert.equal(await textarea.inputValue(), '# 冲突草稿');
+  await openDoc('docs/getting-started.md'); assert.equal(await textarea.inputValue(), '# 冲突草稿');
+  await page.locator('.sidebar > nav').getByRole('button', { name: '知识库管理', exact: true }).click(); assert.equal(await textarea.inputValue(), '# 冲突草稿');
+  await page.evaluate(() => { location.hash = 'guide'; }); await page.waitForTimeout(100);
+  assert.match(page.url(), /#documents/); assert.equal(await textarea.inputValue(), '# 冲突草稿');
+  assert.equal(dialogs, 5); page.off('dialog', dismiss);
+  page.once('dialog', dialog => dialog.accept()); await page.getByRole('button', { name: '重新加载文档', exact: true }).click();
+  await page.getByRole('heading', { name: '外部编辑者版本', exact: true }).waitFor();
+  checks.push('切文档、菜单和浏览器路由的未保存保护');
+
+  await page.getByRole('button', { name: '编辑文档', exact: true }).click(); await textarea.fill('# 构建失败草稿'); failBuild = true;
+  await page.getByRole('button', { name: '保存修改', exact: true }).click(); await page.getByRole('alert').filter({ hasText: '本次修改已回退' }).waitFor();
+  assert.equal(await textarea.inputValue(), '# 构建失败草稿'); assert.equal(readFileSync(join(root, 'docs/README.md'), 'utf8'), '# 外部编辑者版本');
+  failBuild = false; barrier = new Promise(r => { releaseBuild = r; });
+  await page.getByRole('button', { name: '保存修改', exact: true }).click(); await page.getByRole('button', { name: '保存中…', exact: true }).waitFor();
+  assert.ok(await textarea.getAttribute('readonly') !== null);
+  assert.ok(await page.getByRole('button', { name: '全部文档', exact: true }).isDisabled());
+  await page.evaluate(() => { location.hash = 'documents'; }); await page.waitForURL(/file=docs%2FREADME.md/);
+  assert.equal(await textarea.inputValue(), '# 构建失败草稿');
+  await page.locator('.sidebar > nav').getByRole('button', { name: '知识库管理', exact: true }).click();
+  await page.getByText('文档正在保存，请等待同步完成', { exact: true }).waitFor();
+  releaseBuild(); barrier = null; await page.getByText('已保存，离线文档网站已同步更新。', { exact: true }).waitFor();
+  checks.push('构建失败回退、重试与保存期间阻止导航');
+
+  await page.setViewportSize({ width: 320, height: 700 }); await overflow();
+  await page.getByRole('button', { name: '原稿与预览', exact: true }).focus(); await page.keyboard.press('Enter');
+  await page.screenshot({ path: join(output, 'mobile.png'), fullPage: true });
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.getByRole('button', { name: '退出编辑', exact: true }).click(); await overflow();
+  // Inspect the complete real user-document collection through disposable copies.
+  for (const path of ['deploy/sample', 'integrations/sample']) rmSync(join(root, path), { recursive: true, force: true });
+  for (const path of ['docs', 'deploy', 'integrations', 'README.md']) cpSync(resolve(path), join(root, path), { recursive: true, filter: source => !source.split('/').some(part => ['.venv', '__pycache__', 'node_modules'].includes(part)) && (statSync(source).isDirectory() || source.endsWith('.md')) });
+  for (const doc of createDocuments().list().filter(doc => doc.path === 'codemap.md' || doc.path.endsWith('/codemap.md'))) {
+    mkdirSync(join(root, doc.path, '..'), { recursive: true });
+    cpSync(resolve(doc.path), join(root, doc.path));
+  }
+  const expectedCount = createDocuments({ root }).list().length;
+  await page.getByRole('button', { name: '重新加载文档', exact: true }).click();
+  await page.getByRole('heading', { name: '运维百晓生：从第一次使用到独立接手', exact: true }).waitFor();
+  assert.equal(await page.locator('.documents-list button').count(), expectedCount);
+  const titleBox = await page.locator('.documents-content h1').boundingBox();
+  assert.ok(titleBox && titleBox.y >= 79 && titleBox.y < 1000, '阅读标题不能被固定顶部栏遮挡');
+  await page.getByText('文档正在保存，请等待同步完成', { exact: true }).waitFor({ state: 'hidden' });
+  await page.screenshot({ path: join(output, 'desktop.png'), fullPage: false });
+  const outline = page.getByRole('complementary', { name: '本页目录', exact: true });
+  await outline.getByRole('button').first().click();
+  assert.equal(await page.evaluate(() => document.activeElement.tagName), 'H2');
+  checks.push('真实文档章节导航与焦点');
+  await page.setViewportSize({ width: 320, height: 700 }); await overflow();
+  assert.equal(await page.getByRole('complementary', { name: '文档目录', exact: true }).isVisible(), false);
+  await page.getByRole('button', { name: '文档目录', exact: true }).click();
+  assert.equal(await page.getByRole('complementary', { name: '文档目录', exact: true }).isVisible(), true);
+  await page.getByRole('button', { name: '文档目录', exact: true }).click();
+  await page.screenshot({ path: join(output, 'mobile-reading.png'), fullPage: true });
+  await page.getByRole('button', { name: '全部文档', exact: true }).click();
+  await page.locator('.document-card').first().waitFor();
+  assert.equal(await page.locator('.document-card').count(), expectedCount);
+  await overflow();
+  await page.screenshot({ path: join(output, 'home-320.png'), fullPage: false });
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.screenshot({ path: join(output, 'home-desktop.png'), fullPage: false });
+  const tabletContext = await browser.newContext({ storageState: await page.context().storageState(), viewport: { width: 1024, height: 768 } });
+  const tablet = await tabletContext.newPage();
+  tablet.on('pageerror', error => errors.push(error.message));
+  tablet.on('request', request => { if (/^https?:/.test(request.url()) && new URL(request.url()).origin !== http.url) externalRequests.push(request.url()); });
+  await tablet.goto(http.url + '/#documents');
+  await tablet.locator('.document-card').first().waitFor();
+  assert.equal(await tablet.locator('.document-card').count(), expectedCount);
+  assert.equal(await tablet.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true);
+  await tablet.screenshot({ path: join(output, 'home-tablet.png'), fullPage: false });
+  await tabletContext.close();
+  await page.getByRole('navigation', { name: '文档阅读入口' }).getByRole('button', { name: /入门与使用/ }).click();
+  assert.equal(await page.getByLabel('文档分类').inputValue(), '入门与使用');
+  await page.getByRole('button', { name: '查看全部', exact: true }).click();
+  await page.getByLabel('搜索项目文档').fill('不存在的文档');
+  await page.getByRole('button', { name: '清空文档搜索', exact: true }).click();
+  assert.equal(await page.locator('.document-card').count(), expectedCount);
+  await page.locator('.document-card').filter({ hasText: 'docs/README.md' }).click();
+  await page.locator('.documents-content h1').waitFor();
+  await page.getByRole('button', { name: '全部文档', exact: true }).click();
+  await page.getByRole('navigation', { name: '代码模块' }).getByRole('button', { name: /src\// }).click();
+  await page.getByRole('heading', { name: 'src/ · 前端代码地图', exact: true }).waitFor();
+  await page.getByRole('button', { name: '全部文档', exact: true }).click();
+  await page.getByRole('button', { name: /查看全部目录/ }).click();
+  await page.getByRole('heading', { name: '代码库与目录说明', exact: true }).waitFor();
+  await page.reload();
+  await page.getByRole('heading', { name: '代码库与目录说明', exact: true }).waitFor();
+  await overflow();
+  checks.push('代码库速览、前端地图与目录说明刷新');
+  checks.push('真实文档目录首页、分类入口、清空搜索和移动目录');
+  checks.push('320px、桌面和键盘视图切换');
+
+  await page.evaluate(async () => {
+    await fetch('/api/users', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: 'member', password: 'document-browser-test-password', role: 'member' }) });
+    await fetch('/api/auth/logout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+  });
+  await page.reload(); await page.getByLabel('用户名').fill('member'); await page.getByLabel('密码', { exact: true }).fill('document-browser-test-password');
+  await page.getByRole('button', { name: '登录', exact: true }).click();
+  await page.getByText('当前账号可阅读和下载', { exact: true }).waitFor();
+  assert.equal(await page.getByRole('button', { name: '编辑文档', exact: true }).count(), 0);
+  checks.push('成员可读可下载，编辑按钮不可见');
+  assert.deepEqual(errors, []);
+  assert.deepEqual(externalRequests, []);
+  writeFileSync(join(output, 'report.json'), JSON.stringify({ passed: true, checks, pageErrors: errors, externalRequests, modelCalls: 0, toolCalls: 0 }, null, 2));
+  console.log(`Document center browser: ${checks.length} groups passed; 0 page errors.`);
+} catch (error) {
+  await page.screenshot({ path: join(output, 'failure.png'), fullPage: true });
+  console.error((await page.locator('body').innerText()).slice(0, 3500));
+  throw error;
+} finally {
+  releaseBuild?.(); await browser.close(); await http.close(); await application.close(); rmSync(root, { recursive: true, force: true });
+}

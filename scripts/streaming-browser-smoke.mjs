@@ -1,0 +1,247 @@
+import { chromium } from 'playwright';
+import express from 'express';
+import assert from 'node:assert/strict';
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
+import { createApplication } from '../server/app.mjs';
+import { listen } from '../tests/fixtures.mjs';
+
+const output = resolve('test-results/streaming'); mkdirSync(output, { recursive: true });
+const dir = mkdtempSync(join(tmpdir(), 'aiops-stream-browser-'));
+const application = createApplication({ dataDir: dir, scheduler: false });
+const http = await listen(application.app);
+const model = express(); model.use(express.json());
+const first = '**第一段**：中文🙂 已经到达。\n\n';
+const last = '第二段：现在才完成。';
+const frame = data => `data: ${JSON.stringify(data)}\n\n`;
+let release = () => {}, held = Promise.resolve(), mode = 'normal', requests = 0, recoveryAttempt = 0;
+let recoveryArrived = () => {};
+const burst = '连续正文中文🙂，'.repeat(40);
+const retained = '旧草稿不能拼接。已打印的长内容中文🙂，重连期间应持续保留。';
+model.post('/v1/{*path}', async (req, res) => {
+  requests++; assert.equal(req.body.stream, true); res.type('text/event-stream');
+  const recovery = mode === 'recover' ? ++recoveryAttempt : 0;
+  const initial = mode === 'burst' ? burst : recovery === 1 ? retained : recovery === 2 ? '短草稿。' : first;
+  res.write(frame({ type: 'response.output_text.delta', delta: initial }));
+  if (recovery) recoveryArrived();
+  await held;
+  if (res.destroyed) return;
+  if (mode === 'retry-wait') return res.end(frame({ type: 'response.failed', response: { status: 'failed', error: { code: 'service_unavailable', headers: { 'retry-after': '3' }, message: 'PRIVATE_WAIT_DETAIL' } } }));
+  if (mode === 'failure' || (recovery > 0 && recovery <= 2)) return res.end();
+  res.end(frame({ type: 'response.output_text.delta', delta: last }) + frame({ type: 'response.completed', response: { status: 'completed', output: [{ type: 'message', role: 'assistant', content: [{ type: 'output_text', text: initial + last }] }], usage: { total_tokens: 12 } } }));
+});
+const upstream = await listen(model);
+const browser = await chromium.launch({ headless: process.env.STREAMING_BROWSER_VISIBLE !== 'true', ...(process.env.PLAYWRIGHT_CHANNEL ? { channel: process.env.PLAYWRIGHT_CHANNEL } : {}) });
+const errors = [], checks = [];
+const hold = () => { held = new Promise(resolve => { release = resolve; }); };
+try {
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto(http.url);
+  await page.locator('input[name=username]').fill('stream-admin');
+  await page.locator('input[name=name]').fill('流式验收');
+  await page.locator('input[name=password]').fill('stream-browser-test-password');
+  await page.getByRole('button', { name: '创建管理员并进入' }).click();
+  await page.getByRole('button', { name: '执行与审批', exact: true }).waitFor();
+  const send = async text => {
+    await page.getByRole('textbox', { name: '输入你的问题' }).fill(text);
+    await page.getByRole('button', { name: '发送消息', exact: true }).click();
+  };
+  for (const apiType of ['responses']) {
+    await page.request.put(http.url + '/api/settings/model', { data: { baseUrl: upstream.url + '/v1', model: 'stream-fixture', apiType } });
+    await page.goto(http.url + '/#chat'); await page.reload();
+    hold(); mode = 'normal';
+    await send(`${apiType} 正文流式验收`);
+    await page.locator('.message.streaming').filter({ hasText: '第一段' }).waitFor();
+    assert.equal(await page.locator('.message.streaming').getAttribute('aria-busy'), 'true');
+    assert.equal(await page.getByText(last, { exact: true }).count(), 0);
+    assert.equal(application.store.get('SELECT status FROM executions ORDER BY created DESC LIMIT 1').status, 'running');
+    assert.equal(await page.locator('.messages .chat-run-status').count(), 1);
+    assert.equal(await page.locator('.composer-wrap .chat-run-status').count(), 0);
+    assert.equal(await page.getByRole('button', { name: '发送消息', exact: true }).count(), 0);
+    assert.equal(await page.locator('.composer .chat-stop').count(), 1);
+    assert.match(await page.locator('.chat-run-time').innerText(), /已处理 \d+秒/);
+    assert.equal(await page.locator('.chat-run-status').evaluate(el => getComputedStyle(el).backgroundColor), 'rgba(0, 0, 0, 0)');
+    await page.screenshot({ path: join(output, `${apiType}-partial.png`), fullPage: true });
+    await page.locator('.chat-page').screenshot({ path: join(output, 'chat-generation-ui.png') });
+    release();
+    await page.waitForFunction(() => !document.querySelector('.chat-progress'));
+    assert.equal(await page.locator('.message.assistant').count(), 1);
+    assert.equal(await page.locator('.message.streaming').count(), 0);
+    assert.match(await page.locator('.message.assistant').innerText(), /第一段[\s\S]*第二段/);
+    const conversation = application.store.get('SELECT conversation_id FROM executions ORDER BY created DESC LIMIT 1');
+    assert.equal(application.store.get("SELECT content FROM messages WHERE conversation_id=? AND role='assistant'", conversation.conversation_id).content, first + last);
+    await page.reload();
+    await page.getByRole('button', { name: `${apiType} 正文流式验收`, exact: true }).click();
+    await page.locator('.message.assistant').filter({ hasText: '第二段' }).waitFor();
+    assert.equal(await page.locator('.message.assistant').count(), 1);
+    const savedTrace = JSON.parse(application.store.get("SELECT metadata FROM messages WHERE conversation_id=? AND role='assistant'", conversation.conversation_id).metadata).executionTrace;
+    const elapsed = Math.max(0, Math.floor(savedTrace.durationMs / 1000));
+    assert.equal(await page.locator('.chat-run-completed').innerText(), `已处理 ${elapsed}秒`);
+    assert.equal(await page.locator('.composer .chat-stop').count(), 0);
+    assert.equal(await page.getByRole('button', { name: '发送消息', exact: true }).count(), 1);
+    await page.screenshot({ path: join(output, 'responses-completed.png'), fullPage: true });
+    checks.push(`${apiType}: first text visible before upstream finish; final/history exactly once`);
+  }
+  hold(); mode = 'burst';
+  const beforeBurst = requests;
+  await page.getByRole('textbox', { name: '输入你的问题' }).fill('正文突发分帧平滑验收');
+  await page.getByRole('textbox', { name: '输入你的问题' }).evaluate(el => {
+    el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+  });
+  await page.locator('.message.streaming').waitFor();
+  const samples = await page.evaluate(async () => {
+    const values = [];
+    for (let i = 0; i < 20; i++) { values.push(document.querySelector('.message.streaming .markdown-preview')?.textContent || ''); await new Promise(resolve => setTimeout(resolve, 16)); }
+    return values;
+  });
+  assert.ok(new Set(samples.filter(Boolean)).size >= 3, 'one burst must produce multiple visible updates');
+  assert.ok(samples.some(text => text.length > 0 && text.length < burst.length));
+  assert.equal(requests, beforeBurst + 1, 'two synchronous Enter events must not duplicate submission');
+  await page.locator('.messages').evaluate(box => { box.scrollTop = 0; box.dispatchEvent(new Event('scroll', { bubbles: true })); });
+  const stopBox = await page.getByRole('button', { name: '停止生成', exact: true }).boundingBox();
+  assert.ok(stopBox && stopBox.y >= 0 && stopBox.y + stopBox.height <= 900, 'stop remains visible while reading older history');
+  release(); await page.waitForFunction(() => !document.querySelector('.chat-progress'));
+  const assistantsBeforeRecovery = await page.locator('.message.assistant').count();
+  hold(); mode = 'recover'; recoveryAttempt = 0;
+  await send('断流后恢复且不拼接旧草稿');
+  await page.waitForFunction(text => document.querySelector('.message.streaming .markdown-preview')?.textContent.trim() === text, retained);
+  await page.evaluate(() => {
+    window.retryDraftWentBlank = false;
+    window.retryDraftObserver = new MutationObserver(() => {
+      if (!document.querySelector('.message.streaming .markdown-preview')?.textContent) window.retryDraftWentBlank = true;
+    });
+    window.retryDraftObserver.observe(document.querySelector('.messages'), { subtree: true, childList: true, characterData: true });
+  });
+  for (const retry of [1, 2]) {
+    const arrived = new Promise(resolve => { recoveryArrived = resolve; });
+    release(); hold();
+    await page.locator('.chat-progress').filter({ hasText: `重新连接 ${retry}/5` }).waitFor();
+    await page.locator('.chat-run-copy small').filter({ hasText: '等待' }).waitFor();
+    await page.screenshot({ path: join(output, `retry-${retry}-waiting.png`), fullPage: true });
+    await arrived;
+    await page.waitForFunction(text => document.querySelector('.streaming-label')?.textContent.includes('已保留') && document.querySelector('.message.streaming .markdown-preview')?.textContent.trim() === text, retained);
+    await page.locator('.chat-progress').filter({ hasText: '正在生成回复' }).waitFor();
+    assert.equal(await page.locator('.chat-run-copy small').count(), 0, 'a normal delta restores the pre-retry status');
+    assert.equal((await page.locator('.message.streaming .markdown-preview').textContent()).trim(), retained);
+    await page.screenshot({ path: join(output, `retry-${retry}-retained.png`), fullPage: true });
+  }
+  await page.evaluate(() => window.retryDraftObserver.disconnect());
+  assert.equal(await page.evaluate(() => window.retryDraftWentBlank), false);
+  release();
+  await page.waitForFunction(() => !document.querySelector('.chat-progress'));
+  assert.equal(recoveryAttempt, 3); assert.equal(await page.locator('.message.assistant').count(), assistantsBeforeRecovery + 1);
+  assert.doesNotMatch(await page.locator('.message.assistant').last().innerText(), /旧草稿/);
+  assert.match(await page.locator('.message.assistant').last().innerText(), /第二段/);
+  const recoveredConversation = application.store.get('SELECT conversation_id FROM executions ORDER BY created DESC LIMIT 1');
+  assert.equal(application.store.get("SELECT content FROM messages WHERE conversation_id=? AND role='assistant' ORDER BY seq DESC LIMIT 1", recoveredConversation.conversation_id).content, first + last);
+  checks.push('double Enter submits once; stop stays visible while reading history; burst pacing and two retries retain text and persist only the final answer');
+  mode = 'normal'; hold();
+  const beforeDisconnected = requests;
+  let reads = 0;
+  page.on('request', req => { if (/\/api\/executions\/[^/?]+$/.test(req.url()) && req.method() === 'GET') reads++; });
+  // Drop only the completed frame while forwarding real chunks immediately.
+  // Holding the read-only recovery makes the retained draft observable.
+  await page.evaluate(() => {
+    window.originalStreamFetch = window.fetch;
+    window.fetch = async (...args) => {
+      const response = await window.originalStreamFetch(...args);
+      if (args[0] !== '/api/chat') return response;
+      const reader = response.body.getReader(), decoder = new TextDecoder(), encoder = new TextEncoder();
+      let buffer = '';
+      const body = new ReadableStream({ async start(controller) {
+        while (true) {
+          const { done, value } = await reader.read();
+          buffer += done ? decoder.decode() : decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n'); buffer = lines.pop();
+          for (const line of lines) if (line && !(window.streamDroppedFrames || ['done']).includes(JSON.parse(line).type)) controller.enqueue(encoder.encode(line + '\n'));
+          if (done) { controller.close(); break; }
+        }
+      } });
+      return new Response(body, { status: response.status, headers: response.headers });
+    };
+  });
+  let releaseRead;
+  const readGate = new Promise(resolve => { releaseRead = resolve; });
+  await page.route('**/api/executions/*', async route => { await readGate; await route.continue(); });
+  await send('网页丢失完成帧后只读恢复已有执行');
+  await page.waitForFunction(() => document.querySelector('.message.streaming .markdown-preview')?.textContent.includes('已经到达。'));
+  const beforeReadRecovery = await page.locator('.message.streaming .markdown-preview').textContent();
+  release();
+  await page.locator('.chat-progress').filter({ hasText: '重新连接已有执行' }).waitFor();
+  assert.equal(await page.locator('.message.streaming .markdown-preview').textContent(), beforeReadRecovery);
+  await page.locator('.streaming-label').filter({ hasText: '已保留生成内容' }).waitFor();
+  await page.screenshot({ path: join(output, 'display-disconnect-retained.png'), fullPage: true });
+  releaseRead();
+  await page.waitForFunction(() => !document.querySelector('.chat-progress'));
+  await page.unroute('**/api/executions/*');
+  assert.equal(requests, beforeDisconnected + 1); assert.ok(reads >= 1);
+  assert.match(await page.locator('.message.assistant').last().innerText(), /第二段/);
+  assert.equal(await page.locator('.composer-wrap [role=alert]').count(), 0);
+  checks.push('downstream EOF retains printed content while reading the existing execution, restores the saved answer and never reposts');
+  let keyLookups = 0;
+  page.on('request', req => { if (req.url().includes('/api/executions/request/') && req.method() === 'GET') keyLookups++; });
+  await page.evaluate(() => { window.streamDroppedFrames = ['execution', 'done']; });
+  const beforeLostAcceptance = requests;
+  hold(); mode = 'normal';
+  await send('首个受理回包丢失时按原问题标识找回');
+  await page.locator('.message.streaming').waitFor();
+  assert.equal(await page.getByRole('button', { name: '停止生成', exact: true }).isDisabled(), true);
+  release(); await page.waitForFunction(() => !document.querySelector('.chat-progress'));
+  assert.equal(requests, beforeLostAcceptance + 1); assert.equal(keyLookups, 1);
+  assert.match(await page.locator('.message.assistant').last().innerText(), /第二段/);
+  assert.equal(await page.locator('.composer-wrap [role=alert]').count(), 0);
+  await page.evaluate(() => { window.fetch = window.originalStreamFetch; });
+  checks.push('lost acceptance frame uses owner requestKey lookup and original execution, with one model request and one POST');
+  const completedMessages = await page.locator('.message.assistant').count();
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  hold(); mode = 'failure';
+  await send('中断的回答不能保留为完成消息');
+  await page.locator('.message.streaming').waitFor();
+  const mobileStop = await page.locator('.composer .chat-stop').boundingBox();
+  const mobileComposer = await page.locator('.composer').boundingBox();
+  assert.ok(mobileStop && mobileComposer && mobileStop.x >= mobileComposer.x && mobileStop.x + mobileStop.width <= mobileComposer.x + mobileComposer.width && mobileStop.y + mobileStop.height <= 568, 'mobile stop stays inside the composer and viewport');
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  assert.equal(await page.locator('.streaming-cursor').evaluate(el => getComputedStyle(el).animationName), 'none');
+  await page.screenshot({ path: join(output, 'streaming-mobile-320.png'), fullPage: true });
+  release();
+  await page.getByRole('alert').filter({ hasText: '模型连接' }).waitFor();
+  assert.equal(await page.locator('.message.streaming').count(), 0);
+  assert.equal(await page.locator('.message.assistant').count(), completedMessages);
+  checks.push('320px/reduced-motion and truncated-stream cleanup');
+  hold(); mode = 'normal';
+  await send('取消流式回答'); await page.locator('.message.streaming').waitFor();
+  await page.getByRole('textbox', { name: '输入你的问题' }).fill('已经编辑好的下一条问题');
+  const run = application.store.get('SELECT id FROM executions ORDER BY created DESC LIMIT 1');
+  await page.getByRole('button', { name: '停止生成', exact: true }).focus();
+  assert.ok(await page.getByRole('button', { name: '停止生成', exact: true }).evaluate(el => getComputedStyle(el).outlineWidth !== '0px'));
+  await page.keyboard.press('Enter');
+  await page.locator('.chat-notice').filter({ hasText: '已停止生成' }).waitFor(); release();
+  await page.waitForFunction(() => !document.querySelector('.chat-progress'));
+  assert.equal(await page.locator('.message.streaming').count(), 0);
+  assert.equal(await page.locator('.message.assistant').count(), completedMessages);
+  assert.equal(application.store.get('SELECT status FROM executions WHERE id=?', run.id).status, 'cancelled');
+  assert.equal(await page.getByRole('textbox', { name: '输入你的问题' }).inputValue(), '已经编辑好的下一条问题');
+  assert.equal(await page.getByRole('button', { name: '发送消息', exact: true }).isEnabled(), true);
+  checks.push('320px keyboard stop button cancels upstream read, removes partial answer and retains cancelled execution');
+  hold(); mode = 'retry-wait';
+  const beforeStopRetry = requests;
+  await send('等待重试期间停止生成'); await page.locator('.message.streaming').waitFor(); release();
+  await page.locator('.chat-run-copy small').filter({ hasText: '等待' }).waitFor();
+  assert.doesNotMatch(await page.locator('.chat-progress').innerText(), /PRIVATE_WAIT_DETAIL/);
+  await page.screenshot({ path: join(output, 'retry-wait-mobile-stop.png'), fullPage: true });
+  await page.getByRole('button', { name: '停止生成', exact: true }).click();
+  await page.locator('.chat-notice').filter({ hasText: '已停止生成' }).waitFor();
+  await page.waitForFunction(() => !document.querySelector('.chat-progress'));
+  assert.equal(requests, beforeStopRetry + 1); assert.equal(await page.locator('.message.streaming').count(), 0);
+  assert.equal(await page.locator('.composer-wrap [role=alert]').count(), 0);
+  checks.push('stop during server-advised retry countdown prevents the next request and gives a normal stopped notice');
+  assert.deepEqual(errors, []);
+  writeFileSync(join(output, 'browser-report.json'), JSON.stringify({ checkedAt: new Date().toISOString(), mode: 'fixture', checks, requests, errors }, null, 2) + '\n');
+  console.log(JSON.stringify({ checks, requests, errors }));
+} finally {
+  release(); await browser.close(); await http.close(); await application.close(); await upstream.close(); rmSync(dir, { recursive: true, force: true });
+}

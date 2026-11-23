@@ -1,0 +1,4 @@
+[
+  {"targets":["host.docker.internal:3001"],"labels":{"instance":"workspace-a","workspace":"workspace-a"}},
+  {"targets":["host.docker.internal:3002"],"labels":{"instance":"workspace-b","workspace":"workspace-b"}}
+]

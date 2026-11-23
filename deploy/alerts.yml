@@ -1,0 +1,66 @@
+groups:
+  - name: aiops
+    rules:
+      - alert: AIOpsUnavailable
+        expr: up{job="aiops"} == 0 or aiops_ready == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: AIOps unavailable; use the manual operations procedure
+      - alert: AIOpsUnknownOutcome
+        expr: aiops_executions{status="unknown"} > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Reconcile the remote result before replaying any operation
+      - alert: AIOpsQueueBacklog
+        expr: aiops_queued_runs > 20
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Execution backlog; inspect supplier latency and configured limits
+      - alert: AIOpsDiskLow
+        expr: aiops_disk_free_bytes < 1073741824
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Archive data and verify backups before retention cleanup
+      - alert: AIOpsBackupOverdue
+        expr: aiops_backup_age_seconds < 0 or aiops_backup_age_seconds > 86400
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: No recent successful encrypted backup; check backup scheduling
+      - alert: AIOpsHighErrorRate
+        expr: rate(aiops_http_errors_total[5m]) / clamp_min(rate(aiops_http_requests_total[5m]), 0.001) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: More than five percent of HTTP requests fail
+      - alert: AIOpsAgentPoolUnavailable
+        expr: aiops_agent_runtime_ready{mode="prefork"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: AgentScope preloaders are unavailable; check startup errors and resource limits
+      - alert: AIOpsAgentPoolBacklog
+        expr: aiops_agent_pool_queued > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: AgentScope queue is growing; inspect worker capacity and supplier latency
+      - alert: AIOpsAgentStartupFailures
+        expr: increase(aiops_agent_startup_failures_total[5m]) > 3
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: AgentScope preloaders repeatedly fail startup; automatic attempts are backing off

@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "title": "一句问题，怎样变成一个答复？",
+  "nodes": {
+    "question": { "number": "1", "title": "你提出问题", "subtitle": "浏览器发送消息", "owner": "你 · 浏览器", "detail": "你在聊天框输入问题。浏览器提交消息，并带上本次请求的唯一标记，避免重复执行。", "source": "src/components/Chat.tsx → POST /api/chat" },
+    "accepted": { "number": "2", "title": "系统受理", "subtitle": "检查身份、权限与额度", "owner": "Node 后端", "detail": "系统检查登录身份、重复请求和可用额度，保存执行记录，先返回执行编号 runId，再进入队列。没有通过检查的请求在这里结束。", "source": "server/execution.mjs · run / onAccepted" },
+    "context": { "number": "3", "title": "Agent 准备资料", "subtitle": "历史对话、手册、可用工具", "owner": "Node 后端 + AgentScope Worker", "detail": "后端只加载你有权使用的资源、历史对话和按需检索的知识。Python AgentScope Worker 组织这些资料，请 Node 出口向模型发问。", "source": "server/agent.mjs → server/agent-runtime/ → agent-worker/" },
+    "model": { "number": "4", "title": "还需要工具吗？", "subtitle": "模型根据资料判断", "owner": "模型 · 由 Node 请求", "detail": "模型决定直接给出最终答复，还是提出一个工具请求。模型只能提出请求，工具是否允许执行由后端独立检查。", "source": "server/model.mjs · Responses SSE" },
+    "answer": { "number": "5", "title": "保存并显示答复", "subtitle": "本轮完成 · 你看到结果", "owner": "Node 后端 → 浏览器", "detail": "Agent 得到最终答复后，后端保存消息并发送完成事件。浏览器回读已保存的会话，显示最终结果。流式正文可能在完成前逐步出现。", "source": "server/agent.mjs → store → Chat 回读会话" },
+    "policy": { "title": "检查工具请求", "subtitle": "权限、参数、风险", "owner": "Node 后端 · 工具门禁", "detail": "后端核对工具权限、参数格式和风险。只读请求检查通过才会执行；普通聊天中的修改请求生成待审批步骤。无权限或参数不合规时拒绝并记录原因。", "source": "server/execution.mjs · callStep" },
+    "read": { "title": "调用只读工具", "subtitle": "读取数据，结果交回 Agent", "owner": "Node 后端 → MCP 服务", "detail": "后端调用已授权的 MCP 工具，拿到实际数据后交回 Worker。接着回到第 3 步补充资料，再请模型判断；仍缺数据时可以继续查询。", "source": "execution.callStep → MCP callTool → Worker" },
+    "pending": { "title": "等待管理员审批", "subtitle": "保存计划，本轮到此结束", "owner": "Node 后端 → 执行中心", "detail": "修改尚未执行。系统保存固定参数的待审批步骤，返回审批提示，并结束这轮聊天执行。稍后的审批是独立处理流程，不会自动续跑原对话分析。", "source": "server/agent.mjs · awaiting_approval", "stop": true },
+    "approval": { "title": "管理员批准？", "subtitle": "另行处理待审批步骤", "owner": "管理员 · 执行中心", "detail": "管理员稍后在执行中心审阅待审批步骤。取消、过期或复查失败都不会执行变更；批准后还要重新检查权限、资源版本和已固定的参数。", "source": "server/execution.mjs · approve" },
+    "execute": { "title": "复查后执行修改", "subtitle": "权限、版本、固定参数", "owner": "Node 后端 → MCP 服务", "detail": "只有审批和复查都通过，后端才执行已确认的工具操作。它不向模型重新索要另一组修改参数。", "source": "server/execution.mjs · approve → executeStep" },
+    "verified": { "title": "核验并记录结果", "subtitle": "成功、失败或结果待确认", "owner": "Node 后端 · 执行记录", "detail": "系统核验实际结果并更新执行记录。执行失败或结果无法确认时保留相应状态，不把未知当成功，也不自动重放写操作；原对话分析不自动续跑。", "source": "server/execution.mjs · verification / unknown" }
+  },
+  "scenarios": [
+    { "id": "direct", "label": "直接回答", "question": "“什么是 CDC？”", "summary": "资料够用：提问 → 受理 → 准备资料 → 模型判断 → 答复。", "steps": ["question", "accepted", "context", "model", "answer"] },
+    { "id": "read", "label": "查一次数据", "question": "“查询同步任务当前状态。”", "summary": "需要数据：先查工具，把结果交回 Agent，再让模型组织答复。", "steps": ["question", "accepted", "context", "model", "policy", "read", "context", "model", "answer"] },
+    { "id": "write", "label": "发起修改", "question": "“暂停这个任务。”", "summary": "需要修改：保存待审批步骤，本轮结束；管理员稍后单独处理。", "steps": ["question", "accepted", "context", "model", "policy", "pending", "approval", "execute", "verified"] }
+  ]
+}

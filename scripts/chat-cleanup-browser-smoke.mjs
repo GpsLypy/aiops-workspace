@@ -1,0 +1,41 @@
+import { chromium } from 'playwright';
+import express from 'express';
+import assert from 'node:assert/strict';
+import { resolve } from 'node:path';
+import { mkdirSync } from 'node:fs';
+import { listen } from '../tests/fixtures.mjs';
+const user = { id: 'cleanup-user', name: '测试用户', role: 'member' };
+let rows = [{ id: 'one', user_id: user.id, title: '可删除的对话', messages: [] }, { id: 'busy', user_id: user.id, title: '执行中的对话', messages: [] }, { id: 'other', user_id: 'other-user', title: '他人的对话', messages: [] }];
+const deleted = []; const app = express();
+app.get('/api/auth/me', (_req, res) => res.json(user));
+app.get('/api/resources', (_req, res) => res.json([]));
+app.get('/api/model/status', (_req, res) => res.json({ configured: true, model: '界面夹具' }));
+app.get('/api/conversations', (_req, res) => res.json(rows));
+app.get('/api/conversations/:id', (req, res) => res.json(rows.find(c => c.id === req.params.id)));
+app.delete('/api/conversations/:id', (req, res) => {
+  if (req.params.id === 'busy') return res.status(409).json({ error: '会话正在执行，暂时不能删除' });
+  assert.equal(req.params.id, 'one'); deleted.push(req.params.id); rows = rows.filter(c => c.id !== req.params.id); res.json({ ok: true });
+});
+app.use(express.static(resolve('dist')));
+const http = await listen(app); const browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_CHANNEL ? { channel: process.env.PLAYWRIGHT_CHANNEL } : {}) });
+const errors = []; mkdirSync('test-results/chat-cleanup', { recursive: true });
+try {
+ const page = await browser.newPage({ viewport: { width: 1440, height: 960 } }); page.on('pageerror', e => errors.push(e.message));
+ await page.goto(http.url + '/#chat'); await page.getByRole('button', { name: '可删除的对话', exact: true }).click();
+ await page.getByRole('button', { name: '删除对话：可删除的对话', exact: true }).focus();
+ await page.screenshot({ path: 'test-results/chat-cleanup/desktop.png' });
+ await page.keyboard.press('Enter'); await page.getByRole('button', { name: '取消', exact: true }).click(); assert.equal(deleted.length, 0);
+ await page.getByRole('button', { name: '查找对话', exact: true }).click(); await page.getByRole('textbox', { name: '查找最近对话' }).fill('可删除');
+ await page.getByRole('button', { name: '清理', exact: true }).click(); await page.getByText('确认删除已加载的 2 条本人对话？包含当前打开的对话，不受搜索筛选影响。', { exact: true }).waitFor();
+ await page.getByRole('button', { name: '确认删除', exact: true }).click(); await page.getByRole('alert').filter({ hasText: '已删除 1 条，1 条未删除' }).waitFor();
+ assert.deepEqual(deleted, ['one']); await page.getByRole('button', { name: '取消', exact: true }).click();
+ assert.equal(await page.locator('.header').innerText().then(s => s.includes('新对话')), true);
+ await page.reload(); await page.getByRole('button', { name: '执行中的对话', exact: true }).waitFor(); assert.equal(await page.getByRole('button', { name: '可删除的对话', exact: true }).count(), 0);
+ await page.setViewportSize({ width: 320, height: 568 });
+ await page.getByRole('button', { name: '打开导航', exact: true }).click();
+ await page.getByRole('button', { name: '删除对话：执行中的对话', exact: true }).click();
+ await page.getByRole('button', { name: '确认删除', exact: true }).click(); await page.getByRole('alert').filter({ hasText: '会话正在执行' }).waitFor();
+ assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+ await page.screenshot({ path: 'test-results/chat-cleanup/mobile.png' }); assert.deepEqual(errors, []);
+ console.log('PASS: keyboard/cancel, own loaded scope, filtered bulk cleanup, partial failure, current reset, reload, 320px delete/error; 0 page errors.');
+} finally { await browser.close(); await http.close(); }

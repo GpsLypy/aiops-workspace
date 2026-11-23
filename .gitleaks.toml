@@ -1,0 +1,11 @@
+# Retain every default rule; allow only these reviewed, non-secret fixtures.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Example administrator password and deterministic migration request key"
+regexTarget = "secret"
+regexes = [
+  '''^replace-with-at-least-12-characters$''',
+  '''^migrate-v4-plan$''',
+]

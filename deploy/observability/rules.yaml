@@ -1,0 +1,35 @@
+groups:
+  - name: aiops-fleet
+    rules:
+      - record: aiops:fleet_ready_instances
+        expr: sum(aiops_ready{job="aiops"})
+      - record: aiops:fleet_model_tokens_total
+        expr: sum(aiops_model_tokens_total{job="aiops"})
+      - record: aiops:workspace_model_estimated_cost_total
+        expr: sum by (workspace) (aiops_model_cost_total{job="aiops"})
+      - record: aiops:fleet_stage_completions_total
+        expr: sum by (stage) (aiops_agent_trace_duration_seconds_count{job="aiops"})
+      - record: aiops:fleet_stage_duration_seconds:rate5m
+        expr: sum by (stage) (rate(aiops_agent_trace_duration_seconds_sum{job="aiops"}[5m]))
+      - record: aiops:fleet_stage_duration_seconds_bucket:rate5m
+        expr: sum by (stage, le) (rate(aiops_agent_trace_duration_seconds_bucket{job="aiops"}[5m]))
+      - record: aiops:fleet_stage_p95_seconds:rate5m
+        expr: histogram_quantile(0.95, aiops:fleet_stage_duration_seconds_bucket:rate5m)
+      - record: aiops:fleet_outcomes:rate5m
+        expr: sum by (status) (rate(aiops_agent_trace_outcomes_total{job="aiops"}[5m]))
+      - record: aiops:fleet_otlp_exports:rate5m
+        expr: sum by (status) (rate(aiops_agent_otlp_exports_total{job="aiops"}[5m]))
+      - alert: AIOpsInstanceUnavailable
+        expr: up{job="aiops"} == 0 or aiops_ready{job="aiops"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: A monitored workspace is unavailable
+      - alert: AIOpsCollectorExportFailure
+        expr: sum(rate(otelcol_exporter_send_failed_spans_total[5m])) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Collector cannot deliver some spans to the trace backend

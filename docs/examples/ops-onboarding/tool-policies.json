@@ -1,0 +1,13 @@
+{
+  "service_status": {
+    "risk": "read",
+    "roles": ["admin", "member"],
+    "userIds": [],
+    "environments": ["test"],
+    "constraints": {
+      "service": ["billing-lab"],
+      "environment": ["test"]
+    },
+    "maxItems": 1
+  }
+}

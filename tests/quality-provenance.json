@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "caseId": "workspace-dts-status-followup",
+  "confirmedOn": "2026-10-08",
+  "confirmationSource": "current-user-conversation",
+  "questionSummary": "历史 DTS 状态复查是否由用户本人提出且属于真实运维需求",
+  "userConfirmation": "是，属于我的真实运维需求",
+  "historicalEvidence": {
+    "sourceSha256": "d2bce302431e5e07fc5a45e200a9da132ae6d777b6cdf04d009b5cf9dd7f387d",
+    "messageRef": "message-47"
+  },
+  "containsOriginalPromptOrTaskId": false,
+  "limitation": "用户确认作者与真实需求；不证明历史任务当前状态，也不证明模型质量或生产验收完成。"
+}

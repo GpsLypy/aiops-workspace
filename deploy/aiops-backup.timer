@@ -1,0 +1,11 @@
+[Unit]
+Description=Back up AIOps every fifteen minutes
+
+[Timer]
+OnCalendar=*-*-* *:00/15:00
+Persistent=true
+RandomizedDelaySec=30
+Unit=aiops-backup.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,131 @@
+import assert from 'node:assert/strict';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { resolve } from 'node:path';
+import express from 'express';
+import { chromium } from 'playwright';
+import { diagramAssetHeaders } from '../server/diagram-assets.mjs';
+
+const output = resolve(process.env.ARCHITECTURE_OUTPUT || 'test-results/architecture-20261015');
+const dist = resolve(process.env.ARCHITECTURE_DIST || 'dist');
+mkdirSync(output, { recursive: true });
+let server;
+const origin = process.env.ARCHITECTURE_ORIGIN || await new Promise(ready => {
+  const app = express(); app.use(express.static(dist, { setHeaders: diagramAssetHeaders(dist) }));
+  server = app.listen(0, '127.0.0.1', () => ready(`http://127.0.0.1:${server.address().port}`));
+});
+const browser = await chromium.launch({ headless: true, channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome' });
+const page = await browser.newPage({ viewport: { width: 1440, height: 960 }, colorScheme: 'dark' });
+const errors = [], checks = [], writes = [];
+page.on('pageerror', error => errors.push(error.message));
+page.on('request', request => { if (!['GET', 'HEAD'].includes(request.method())) writes.push({ method: request.method(), url: request.url() }); });
+// Verify the complete viewer with external fonts unavailable.
+await page.route('https://**/*', route => route.abort());
+const fit = async () => {
+  assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+  const frame = page.frames().find(frame => frame.url().includes('/diagrams/'));
+  assert.ok(frame); assert.ok(await frame.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+  return frame;
+};
+try {
+  for (const [url, source] of [['/architecture.html', 'docs/web/architecture-viewer.html'], ['/diagrams/system.html', 'docs/site/architecture.html'], ['/diagrams/request-flow.html', 'docs/site/request-flow.html']]) {
+    const response = await page.request.get(origin + url); assert.equal(response.status(), 200); assert.match(response.headers()['content-type'], /text\/html/);
+    assert.equal(createHash('sha256').update(await response.body()).digest('hex'), createHash('sha256').update(readFileSync(source)).digest('hex'));
+  }
+  checks.push('HTTP serves wrapper and exact validated diagram bytes');
+  await page.goto(origin + '/architecture.html');
+  let frame = page.frameLocator('iframe');
+  await frame.locator('#node-workspace').waitFor(); await fit();
+  await page.screenshot({ path: output + '/system-desktop.png', fullPage: true });
+  await frame.locator('#node-worker').click();
+  await frame.locator('#focus-id').filter({ hasText: 'worker' }).waitFor();
+  await page.keyboard.press('Escape');
+  await frame.getByRole('button', { name: '查找节点', exact: true }).click();
+  await frame.locator('#node-finder input').fill('SQLite');
+  await frame.locator('#node-finder-results button').filter({ hasText: 'SQLite' }).click();
+  await page.keyboard.press('Escape');
+  const beforeZoom = await frame.locator('[data-view-percent]').textContent();
+  await frame.getByRole('button', { name: '放大', exact: true }).click();
+  assert.notEqual(await frame.locator('[data-view-percent]').textContent(), beforeZoom);
+  await frame.locator('[data-view="reset"]').click();
+  await frame.getByRole('button', { name: '切换颜色主题', exact: true }).click();
+  await page.screenshot({ path: output + '/system-light.png', fullPage: true });
+  await frame.getByRole('button', { name: '切换颜色主题', exact: true }).click();
+  checks.push('node details, finder, zoom/reset and dark/light themes');
+  await page.getByRole('link', { name: '请求流程', exact: true }).click();
+  await frame.locator('#node-approval').waitFor({state:'attached'}); await fit();
+  assert.match(page.url(), /view=request/);
+  for (const size of [{width:1440,height:900},{width:1600,height:1000},{width:1920,height:1080},{width:2048,height:1320}]) {
+    await page.setViewportSize(size); await fit();
+    await page.screenshot({path:`${output}/request-${size.width}.png`,fullPage:true});
+  }
+  await page.setViewportSize({width:1440,height:960});
+  await frame.getByRole('button', {name:'直接回答',exact:true}).click();
+  await frame.locator('#node-model').click();
+  assert.match(await frame.locator('#step-detail').textContent(), /直接给出最终答复/);
+  await frame.getByRole('button',{name:'下一步 →',exact:true}).click();
+  assert.match(await frame.locator('#step-title').textContent(), /保存并显示答复/);
+  assert.equal(await frame.locator('#next').isDisabled(), true);
+  checks.push('numbered direct-answer path and four desktop viewport layouts');
+  await frame.getByRole('button',{name:'查一次数据',exact:true}).click();
+  await frame.locator('#node-read').focus(); await page.keyboard.press('Enter');
+  assert.match(await frame.locator('#step-detail').textContent(), /回到第 3 步/);
+  await frame.locator('#next').click();
+  assert.match(await frame.locator('#progress').textContent(), /7 \/ 9/);
+  assert.match(await frame.locator('#step-title').textContent(), /准备资料/);
+  await frame.locator('#next').click(); await frame.locator('#next').click();
+  assert.match(await frame.locator('#step-title').textContent(), /保存并显示答复/);
+  checks.push('read-only tool returns to Agent and model before final answer; keyboard node selection');
+  await frame.getByRole('button',{name:'发起修改',exact:true}).click();
+  await frame.locator('#node-policy').click();
+  await frame.locator('#play').click();
+  await frame.locator('#play[aria-pressed="false"]').waitFor({timeout:6000});
+  assert.match(await frame.locator('#step-title').textContent(), /等待管理员审批/);
+  assert.match(await frame.locator('#step-detail').textContent(), /结束这轮聊天/);
+  await frame.getByRole('button',{name:'看后续审批 →',exact:true}).click();
+  assert.match(await frame.locator('#progress').textContent(), /后续独立审批/);
+  await frame.locator('#next').click(); await frame.locator('#next').click();
+  assert.match(await frame.locator('#step-detail').textContent(), /不自动重放写操作/);
+  checks.push('write demonstration pauses at end of chat; explicit separate approval and verification');
+  await frame.getByRole('button',{name:'切换颜色主题',exact:true}).click();
+  await page.screenshot({path:output+'/request-light.png',fullPage:true});
+  const pending=page.waitForEvent('download'); await frame.getByRole('button',{name:'下载流程图 SVG',exact:true}).click();
+  const download=await pending;await download.saveAs(output+'/request-flow.svg');
+  const svg=readFileSync(output+'/request-flow.svg','utf8');assert.match(svg,/<svg/);assert.match(svg,/管理员批准/);assert.match(svg,/不自动续跑原对话/);
+  await page.goBack();await frame.locator('#node-workspace').waitFor();
+  await page.goForward();await frame.locator('#node-approval').waitFor({state:'attached'});
+  await page.reload();await frame.locator('#node-approval').waitFor({state:'attached'});
+  checks.push('flow theme, complete SVG download, browser history and reload');
+  for(const size of [{width:390,height:844},{width:320,height:568}]) {
+    await page.setViewportSize(size);await fit();
+    assert.equal(await frame.locator('.mobile-flow').isVisible(),true);
+    assert.equal(await frame.locator('.desktop-flow').isVisible(),false);
+    await frame.getByRole('button',{name:'查一次数据',exact:true}).click();
+    assert.equal(await frame.locator('.mobile-step').count(),9);
+    await frame.locator('.mobile-step').nth(5).click();
+    assert.match(await frame.locator('#step-detail').textContent(),/回到第 3 步/);
+    const font=await frame.locator('.mobile-step b').first().evaluate(el=>getComputedStyle(el).fontSize);assert.ok(parseFloat(font)>=15);
+    await page.screenshot({path:`${output}/request-${size.width}.png`,fullPage:true});
+    const standalone=await browser.newPage({viewport:size});
+    standalone.on('pageerror',e=>errors.push(e.message));
+    standalone.on('request',r=>{if(!['GET','HEAD'].includes(r.method()))writes.push({method:r.method(),url:r.url()});});
+    await standalone.goto(origin+'/diagrams/request-flow.html');
+    await standalone.locator('.mobile-step').last().waitFor();
+    await standalone.screenshot({path:`${output}/flow-list-${size.width}.png`,fullPage:true});
+    await standalone.getByRole('button',{name:'发起修改',exact:true}).click();
+    await standalone.screenshot({path:`${output}/approval-list-${size.width}.png`,fullPage:true});
+    await standalone.close();
+    await frame.getByRole('button',{name:'发起修改',exact:true}).click();
+    assert.match(await frame.locator('.separation').textContent(),/本轮聊天已结束/);
+    await page.getByRole('link',{name:'系统架构',exact:true}).click();await frame.locator('#node-workspace').waitFor();await fit();
+    await page.getByRole('link',{name:'请求流程',exact:true}).click();await frame.locator('#node-approval').waitFor({state:'attached'});
+  }
+  checks.push('390px/320px readable complete path, loop and separate approval without horizontal overflow');
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await frame.getByRole('button',{name:'直接回答',exact:true}).click();
+  assert.equal(await frame.locator('#play').getAttribute('aria-pressed'),'false');
+  checks.push('reduced motion opens paused; zero real model or tool requests');
+  assert.deepEqual(errors, []); assert.deepEqual(writes, []);
+  const report = { checkedAt: new Date().toISOString(), origin, checks, errors, writes, realModelRequests: 0, toolQueries: 0 };
+  writeFileSync(output + '/report.json', JSON.stringify(report, null, 2)); console.log(JSON.stringify(report));
+} finally { await browser.close(); if (server) await new Promise(resolve => server.close(resolve)); }

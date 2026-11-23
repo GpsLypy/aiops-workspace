@@ -1,0 +1,295 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "运维百晓生 · 系统架构",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1320,
+      720
+    ],
+    "animation": "trace",
+    "visual_preset": "signal-flow",
+    "views": [
+      {
+        "id": "request",
+        "label": "请求主链",
+        "focus": [
+          "workspace",
+          "http",
+          "engine",
+          "worker",
+          "model"
+        ],
+        "note": "浏览器提交请求，Node治理，Python Worker编排，Node访问模型。"
+      },
+      {
+        "id": "tools",
+        "label": "知识与工具",
+        "focus": [
+          "engine",
+          "knowledge",
+          "remote"
+        ],
+        "note": "检索和工具出口由Node按权限、参数与审批规则执行。"
+      },
+      {
+        "id": "durable",
+        "label": "持久化与任务",
+        "focus": [
+          "http",
+          "store",
+          "scheduler",
+          "engine"
+        ],
+        "note": "SQLite单实例保存状态；定时任务复用同一执行入口。"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "workspace",
+      "type": "frontend",
+      "label": "浏览器工作空间",
+      "sublabel": "React · 聊天与管理",
+      "pos": [
+        40,
+        320
+      ],
+      "size": [
+        180,
+        80
+      ]
+    },
+    {
+      "id": "http",
+      "type": "security",
+      "label": "HTTP 与身份校验",
+      "sublabel": "Express · Cookie · Zod",
+      "pos": [
+        340,
+        320
+      ],
+      "size": [
+        180,
+        80
+      ]
+    },
+    {
+      "id": "engine",
+      "type": "backend",
+      "label": "Node 治理与桥接",
+      "sublabel": "上下文 · 审批 · 执行台账",
+      "pos": [
+        640,
+        320
+      ],
+      "size": [
+        200,
+        80
+      ]
+    },
+    {
+      "id": "model",
+      "type": "external",
+      "label": "外部模型服务",
+      "sublabel": "Responses · SSE",
+      "pos": [
+        1080,
+        320
+      ],
+      "size": [
+        200,
+        80
+      ]
+    },
+    {
+      "id": "scheduler",
+      "type": "backend",
+      "label": "持久化调度器",
+      "sublabel": "到期领取 · 同一执行器",
+      "pos": [
+        640,
+        80
+      ],
+      "size": [
+        200,
+        80
+      ]
+    },
+    {
+      "id": "store",
+      "type": "database",
+      "label": "SQLite 与本地密钥",
+      "sublabel": "资源 · 会话 · 任务 · 审计",
+      "pos": [
+        340,
+        570
+      ],
+      "size": [
+        200,
+        80
+      ]
+    },
+    {
+      "id": "knowledge",
+      "type": "backend",
+      "label": "知识检索",
+      "sublabel": "授权文档 · 前五个片段",
+      "pos": [
+        640,
+        570
+      ],
+      "size": [
+        200,
+        80
+      ]
+    },
+    {
+      "id": "remote",
+      "type": "external",
+      "label": "远程 MCP 工具",
+      "sublabel": "官方 SDK · Streamable HTTP",
+      "pos": [
+        1080,
+        570
+      ],
+      "size": [
+        200,
+        80
+      ]
+    },
+    {
+      "id": "worker",
+      "type": "backend",
+      "label": "AgentScope Worker",
+      "sublabel": "Python 3.12 · 每轮独立 Agent",
+      "pos": [
+        1080,
+        80
+      ],
+      "size": [
+        200,
+        80
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "submit",
+      "from": "workspace",
+      "to": "http",
+      "label": "同源 /api"
+    },
+    {
+      "id": "dispatch",
+      "from": "http",
+      "to": "engine",
+      "label": "已登录请求"
+    },
+    {
+      "id": "infer",
+      "from": "engine",
+      "to": "model",
+      "label": "消息与工具定义",
+      "labelDy": 14
+    },
+    {
+      "id": "scheduled",
+      "from": "scheduler",
+      "to": "engine",
+      "label": "创建者身份",
+      "labelDy": 90
+    },
+    {
+      "id": "persist",
+      "from": "http",
+      "to": "store",
+      "label": "查询与保存",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "retrieve",
+      "from": "engine",
+      "to": "knowledge",
+      "label": "当前问题",
+      "labelDy": 90
+    },
+    {
+      "id": "invoke",
+      "from": "engine",
+      "to": "remote",
+      "label": "复核授权后调用"
+    },
+    {
+      "id": "orchestrate",
+      "from": "engine",
+      "to": "worker",
+      "label": "私有 stdio 编排回调"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "一条主链路",
+      "items": [
+        "所有对话与定时任务统一使用 AgentScope；增强开关不切换引擎。"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "知识与行动",
+      "items": [
+        "Worker 编排模型与工具；Node 负责出口、权限、审批和实际执行。"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "数据持久化",
+      "items": [
+        "后端各模块共享 SQLite；图中省略重复的数据读写连线。"
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "浏览器",
+      "wraps": [
+        "workspace"
+      ],
+      "pad": 25
+    },
+    {
+      "kind": "security-group",
+      "label": "Node 应用 · 单实例治理边界",
+      "wraps": [
+        "http",
+        "engine",
+        "scheduler",
+        "store",
+        "knowledge"
+      ],
+      "pad": 30
+    },
+    {
+      "kind": "region",
+      "label": "Python 编排进程",
+      "wraps": [
+        "worker"
+      ],
+      "pad": 25
+    },
+    {
+      "kind": "region",
+      "label": "外部服务 · 受控出口",
+      "wraps": [
+        "model",
+        "remote"
+      ],
+      "pad": 25
+    }
+  ]
+}

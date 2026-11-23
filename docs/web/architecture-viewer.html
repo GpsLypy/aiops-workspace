@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>运维百晓生 · 架构与流程</title>
+  <style>
+    :root { color-scheme: dark; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: #0c111b; color: #e5edf7; }
+    * { box-sizing: border-box; }
+    body { margin: 0; height: 100dvh; display: flex; flex-direction: column; }
+    header { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 24px; padding: 12px 24px; border-bottom: 1px solid #293446; }
+    .brand { font-size: 14px; font-weight: 600; letter-spacing: .02em; }
+    nav { display: flex; gap: 4px; padding: 3px; background: #151e2b; border: 1px solid #293446; border-radius: 8px; }
+    nav a { padding: 8px 14px; border-radius: 5px; font-size: 13px; color: #9baec6; text-decoration: none; }
+    nav a[aria-current="page"] { background: #24364a; color: #baf1d9; }
+    a:focus-visible { outline: 2px solid #88e0c1; outline-offset: 3px; }
+    .actions { margin-left: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 16px; font-size: 12px; }
+    .actions span { color: #93a3b9; }
+    .actions a { color: #baf1d9; text-decoration: none; padding-block: 8px; }
+    main { flex: 1; min-height: 0; }
+    iframe { width: 100%; height: 100%; display: block; border: 0; color-scheme: dark; }
+    @media (max-width: 600px) { header { padding: 12px; gap: 10px; } .brand { width: 100%; } nav a { padding: 8px 10px; } .actions { gap: 8px; } .actions span { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <span class="brand">运维百晓生 / 架构</span>
+    <nav aria-label="图表视图"><a href="?view=system" data-view="system">系统架构</a><a href="?view=request" data-view="request">请求流程</a></nav>
+    <div class="actions"><span>结构与流程演示</span><a id="standalone" href="/diagrams/system.html" target="_blank" rel="noopener noreferrer">独立查看 ↗</a></div>
+  </header>
+  <main><iframe title="系统架构图" src="/diagrams/system.html" allow="fullscreen; clipboard-write" allowfullscreen></iframe></main>
+  <script>
+    const frame = document.querySelector('iframe');
+    const standalone = document.getElementById('standalone');
+    const views = { system: { title: '系统架构图', src: '/diagrams/system.html' }, request: { title: '请求流程图', src: '/diagrams/request-flow.html' } };
+    function render() {
+      const key = new URLSearchParams(location.search).get('view') === 'request' ? 'request' : 'system';
+      const view = views[key];
+      if ((frame.dataset.source || frame.getAttribute('src')) !== view.src) {
+        frame.contentWindow.location.replace(view.src); frame.dataset.source = view.src;
+      }
+      frame.title = view.title; standalone.href = view.src;
+      document.title = '运维百晓生 · ' + view.title;
+      for (const link of document.querySelectorAll('[data-view]')) {
+        if (link.dataset.view === key) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
+      }
+    }
+    document.querySelector('nav').addEventListener('click', event => {
+      const link = event.target.closest('a');
+      if (!link || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault(); history.pushState(null, '', link.href); render();
+    });
+    addEventListener('popstate', render); render();
+  </script>
+</body>
+</html>
