@@ -1,0 +1,983 @@
+docs/site/index.html
+  s_9bfa193f3f9e64::t_83685f8c874729 7283-7485
+  s_9bfa193f3f9e64::t_26ae1c686e42e9 1-7282,7486-7487
+docs/verification.md
+  s_9bfa193f3f9e64::t_46c875f66ae9eb 14-26
+  s_9bfa193f3f9e64::t_2632905a4e484f 1-13,27-28
+.gitleaks.toml
+  s_9bfa193f3f9e64::t_46c875f66ae9eb 1-11
+CONTRIBUTING.md
+  s_9bfa193f3f9e64::t_46c875f66ae9eb 26-27
+  s_9bfa193f3f9e64::t_a6aec0e14f806b 1-25
+tests/documents.test.mjs
+  s_9bfa193f3f9e64::t_46c875f66ae9eb 127
+  s_9bfa193f3f9e64::t_b196f4e81787d5 1-126,128-162
+.dockerignore
+  s_9bfa193f3f9e64::t_99291791418355 1-11
+.env.example
+  s_9bfa193f3f9e64::t_d6473672031812 1-94
+.github/workflows/verify.yml
+  s_9bfa193f3f9e64::t_b1b25c56f9152f 1-88
+.gitignore
+  s_9bfa193f3f9e64::t_3462447f18b4df 1-29
+.ignore
+  s_9bfa193f3f9e64::t_2fb421fb83e0ab 1
+AGENTS.md
+  s_9bfa193f3f9e64::t_263e8fb4352d3d 1-13
+Dockerfile
+  s_9bfa193f3f9e64::t_7f7fa12379ad1c 1-46
+LICENSE
+  s_9bfa193f3f9e64::t_4e4c7109ac09af 1-21
+OPEN_SOURCE.md
+  s_9bfa193f3f9e64::t_6baca1f584bc7d 1-19
+README.md
+  s_9bfa193f3f9e64::t_10d09f76621661 1-109
+SECURITY.md
+  s_9bfa193f3f9e64::t_3a4db6ceb5aa0b 1-7
+agent-worker/codemap.md
+  s_9bfa193f3f9e64::t_df89dfa6370d4f 1-17
+agent-worker/pyproject.toml
+  s_9bfa193f3f9e64::t_2b56975059a124 1-8
+agent-worker/uv.lock
+  s_9bfa193f3f9e64::t_866587f595b2d5 1-1381
+agent-worker/worker.py
+  s_9bfa193f3f9e64::t_5d80faca36c95b 1-244
+agent.md
+  s_9bfa193f3f9e64::t_667200d9826d11 1-21
+codemap.md
+  s_9bfa193f3f9e64::t_637f879a7655d8 1-77
+compose.yaml
+  s_9bfa193f3f9e64::t_403cfcb403482b 1-81
+deploy/aiops-backup.service
+  s_9bfa193f3f9e64::t_08129b891cfcc6 1-15
+deploy/aiops-backup.timer
+  s_9bfa193f3f9e64::t_d42f25bc5fac49 1-11
+deploy/alerts.yml
+  s_9bfa193f3f9e64::t_250bd895c0664c 1-66
+deploy/company-sandbox/Dockerfile
+  s_9bfa193f3f9e64::t_28c815dace4b60 1-22
+deploy/company-sandbox/Dockerfile.dockerignore
+  s_9bfa193f3f9e64::t_497dce7dbc1310 1-23
+deploy/company-sandbox/README.md
+  s_9bfa193f3f9e64::t_ad93ae533b9ba0 1-132
+deploy/company-sandbox/bootstrap-source.sh
+  s_9bfa193f3f9e64::t_39a1ceec202946 1-19
+deploy/company-sandbox/download-python-ranges.py
+  s_9bfa193f3f9e64::t_9ffd5bdb464e80 1-153
+deploy/company-sandbox/download-wheels.py
+  s_9bfa193f3f9e64::t_cb5a57049474af 1-75
+deploy/company-sandbox/dts-config.mjs
+  s_9bfa193f3f9e64::t_7c718d2aa0c5b3 1-50
+deploy/company-sandbox/install-runtime.sh
+  s_9bfa193f3f9e64::t_bb243107238336 1-111
+deploy/company-sandbox/install-worker-offline.sh
+  s_9bfa193f3f9e64::t_8b94c0c30d8b2d 1-28
+deploy/company-sandbox/prepare-wheels.py
+  s_9bfa193f3f9e64::t_0b455489ce8f0c 1-128
+deploy/company-sandbox/probe.mjs
+  s_9bfa193f3f9e64::t_561084e9aa98bd 1-75
+deploy/company-sandbox/run-dts-poc.sh
+  s_9bfa193f3f9e64::t_8a9ea2aba6a5f9 1-18
+deploy/company-sandbox/run-poc.sh
+  s_9bfa193f3f9e64::t_beec3c3dc0ac25 1-21
+deploy/company-sandbox/start.mjs
+  s_9bfa193f3f9e64::t_1df0604a01b2fe 1-143
+deploy/company-sandbox/validate-chat.mjs
+  s_9bfa193f3f9e64::t_0c533c8edf10ab 1-14
+deploy/company-sandbox/validate-store.mjs
+  s_9bfa193f3f9e64::t_1298edf57387b2 1-64
+deploy/dts-sandbox/README.md
+  s_9bfa193f3f9e64::t_634cd6d3dc5153 1-25
+deploy/dts-sandbox/package-lock.json
+  s_9bfa193f3f9e64::t_d3d45b17069554 1-1207
+deploy/dts-sandbox/package.json
+  s_9bfa193f3f9e64::t_1c67da4cab948e 1-14
+deploy/dts-sandbox/probe.mjs
+  s_9bfa193f3f9e64::t_a0fbd6f507ff07 1-47
+deploy/dts-sandbox/service.mjs
+  s_9bfa193f3f9e64::t_435e9cdb104229 1-77
+deploy/dts-sandbox/tunnel.mjs
+  s_9bfa193f3f9e64::t_603b2a33916fbd 1-47
+deploy/nginx.conf.example
+  s_9bfa193f3f9e64::t_761efff1edaaab 1-22
+deploy/observability/README.md
+  s_9bfa193f3f9e64::t_17e7a48cd4d32e 1-107
+deploy/observability/collector.yaml
+  s_9bfa193f3f9e64::t_5545cfcc01ef01 1-37
+deploy/observability/compose.yaml
+  s_9bfa193f3f9e64::t_68ab6bdb1b2b56 1-59
+deploy/observability/prometheus.yaml
+  s_9bfa193f3f9e64::t_b13a2dfa277e64 1-17
+deploy/observability/rules.yaml
+  s_9bfa193f3f9e64::t_18c39f33f03890 1-35
+deploy/observability/targets.example.json
+  s_9bfa193f3f9e64::t_23ffe87b4a19d4 1-4
+deploy/observability/tempo.yaml
+  s_9bfa193f3f9e64::t_eb1c108db9e123 1-24
+docs/README.md
+  s_9bfa193f3f9e64::t_a69cf6a77cdaf4 1-37
+docs/agent-context-lab.md
+  s_9bfa193f3f9e64::t_d676fe6b74ce14 1-72
+docs/agent-delegation.md
+  s_9bfa193f3f9e64::t_601eaaa5172539 1-58
+docs/agent-development.md
+  s_9bfa193f3f9e64::t_873c27425b0f27 1-156
+docs/agent-intent-lab.md
+  s_9bfa193f3f9e64::t_825e6b63c2f043 1-78
+docs/agent-interview.md
+  s_9bfa193f3f9e64::t_476916d9fd0bad 1-183
+docs/agent-learning.md
+  s_9bfa193f3f9e64::t_e7ae30dbd0a655 1-212
+docs/agent-react-lab.md
+  s_9bfa193f3f9e64::t_ada496a43b397f 1-75
+docs/agent-review-lab.md
+  s_9bfa193f3f9e64::t_9e30df56f5b139 1-82
+docs/agent-trace-lab.md
+  s_9bfa193f3f9e64::t_67901a894702d3 1-58
+docs/agent-unknown-lab.md
+  s_9bfa193f3f9e64::t_7a61572671ea52 1-70
+docs/agentscope-assessment.md
+  s_9bfa193f3f9e64::t_02f6f17943835d 1-256
+docs/agentscope-runtime.md
+  s_9bfa193f3f9e64::t_fde014ef9e8fbb 1-354
+docs/architecture.md
+  s_9bfa193f3f9e64::t_a93ef634abcd8c 1-105
+docs/company-sandbox-tutorial.md
+  s_9bfa193f3f9e64::t_9a113b10a4940a 1-585
+docs/company-sandbox.md
+  s_9bfa193f3f9e64::t_6b728c21f824c6 1-225
+docs/context-and-tools.md
+  s_9bfa193f3f9e64::t_cf6d4385f54870 1-86
+docs/conversation.md
+  s_9bfa193f3f9e64::t_1fff672371393b 1-122
+docs/diagrams/architecture.json
+  s_9bfa193f3f9e64::t_cd018119ed703b 1-295
+docs/diagrams/request-flow.json
+  s_9bfa193f3f9e64::t_51d729697e5118 1-22
+docs/document-center.md
+  s_9bfa193f3f9e64::t_0d2d5219f3a72c 1-62
+docs/dts-sandbox.md
+  s_9bfa193f3f9e64::t_ae06b90715873a 1-69
+docs/examples/ops-onboarding/billing-diagnosis/SKILL.md
+  s_9bfa193f3f9e64::t_be7dcaeee4489e 1-31
+docs/examples/ops-onboarding/billing-diagnosis/references/notes.md
+  s_9bfa193f3f9e64::t_58c07096321323 1-5
+docs/examples/ops-onboarding/incident.log
+  s_9bfa193f3f9e64::t_53fdcfee382cab 1
+docs/examples/ops-onboarding/knowledge.md
+  s_9bfa193f3f9e64::t_f1ab58f4ad00c8 1-20
+docs/examples/ops-onboarding/mcp-demo.mjs
+  s_9bfa193f3f9e64::t_4479e0549a6ea5 1-74
+docs/examples/ops-onboarding/tool-policies.json
+  s_9bfa193f3f9e64::t_e4e46bd7d98b9f 1-13
+docs/execution-panorama.md
+  s_9bfa193f3f9e64::t_acc7ecc6b9e734 1-58
+docs/getting-started.md
+  s_9bfa193f3f9e64::t_3f20cbe945241c 1-297
+docs/learning-evolution.md
+  s_9bfa193f3f9e64::t_c7981691b566aa 1-182
+docs/notifications.md
+  s_9bfa193f3f9e64::t_13c12a3ff5264e 1-92
+docs/operations.md
+  s_9bfa193f3f9e64::t_247321cb97c4c9 1-106
+docs/ops-onboarding.md
+  s_9bfa193f3f9e64::t_024a922224f28e 1-664
+docs/production.md
+  s_9bfa193f3f9e64::t_da9447a818f186 1-208
+docs/reference.md
+  s_9bfa193f3f9e64::t_5aa8d929f148cf 1-218
+docs/repository-guide.md
+  s_9bfa193f3f9e64::t_c494541c8f5c31 1-81
+docs/site/README.md
+  s_9bfa193f3f9e64::t_ce07a5cd22f949 1-52
+docs/site/architecture.html
+  s_9bfa193f3f9e64::t_3f3e8fb3738793 1-14687
+docs/site/request-flow.html
+  s_9bfa193f3f9e64::t_2937d8bba09ef8 1-120
+docs/web/architecture-viewer.html
+  s_9bfa193f3f9e64::t_17c688616af72f 1-56
+docs/web/content.mjs
+  s_9bfa193f3f9e64::t_8bfac7529a41b6 1-58
+docs/web/diagrams.mjs
+  s_9bfa193f3f9e64::t_6fe7615f6f913a 1-114
+docs/web/request-flow.html
+  s_9bfa193f3f9e64::t_04ad4b583cb1e8 1-120
+docs/web/site.css
+  s_9bfa193f3f9e64::t_758373a2a90eab 1-21
+docs/web/site.js
+  s_9bfa193f3f9e64::t_bc044c0ca652a4 1-182
+index.html
+  s_9bfa193f3f9e64::t_21cef1363cb01e 1-2
+integrations/agent-sandbox/README.md
+  s_9bfa193f3f9e64::t_8a226225e46d87 1-135
+integrations/agent-sandbox/broker.mjs
+  s_9bfa193f3f9e64::t_138e982386caa4 1-272
+integrations/agent-sandbox/client.mjs
+  s_9bfa193f3f9e64::t_37c2e97e3fe225 1-23
+integrations/agent-sandbox/codemap.md
+  s_9bfa193f3f9e64::t_62da008497db40 1-15
+integrations/agent-sandbox/control.mjs
+  s_9bfa193f3f9e64::t_4e78da06520fcd 1-43
+integrations/agent-sandbox/docker-runtime.mjs
+  s_9bfa193f3f9e64::t_35fa26636bd0f6 1-80
+integrations/agent-sandbox/guest.mjs
+  s_9bfa193f3f9e64::t_d2a63d9d69414c 1-61
+integrations/agent-sandbox/mcp.mjs
+  s_9bfa193f3f9e64::t_60f5ddb9c80e21 1-153
+integrations/agent-sandbox/policy.mjs
+  s_9bfa193f3f9e64::t_b09ad265f8c56c 1-64
+integrations/agent-sandbox/service.mjs
+  s_9bfa193f3f9e64::t_4b355116f2f6ef 1-95
+integrations/dts-mcp/.env.example
+  s_9bfa193f3f9e64::t_3461e7dd008cf5 1-15
+integrations/dts-mcp/HANDOFF.md
+  s_9bfa193f3f9e64::t_aeb3da36f4c70b 1-16
+integrations/dts-mcp/README.md
+  s_9bfa193f3f9e64::t_d02aec2bc5a123 1-127
+integrations/dts-mcp/adapter.mjs
+  s_9bfa193f3f9e64::t_b0b2543de9a13b 1-185
+integrations/dts-mcp/dts-status/SKILL.md
+  s_9bfa193f3f9e64::t_15a7c345533e63 1-16
+integrations/dts-mcp/index.mjs
+  s_9bfa193f3f9e64::t_8c8f7bf29d7c74 1-11
+integrations/dts-mcp/knowledge.md
+  s_9bfa193f3f9e64::t_1e1e6890f40491 1-15
+integrations/dts-mcp/provision.mjs
+  s_9bfa193f3f9e64::t_21f04b5615ece0 1-104
+openspec/changes/agent-evidence-enhancements/design.md
+  s_9bfa193f3f9e64::t_6cb6e71c510ce0 1-19
+openspec/changes/agent-evidence-enhancements/proposal.md
+  s_9bfa193f3f9e64::t_f47bd044defe6b 1-7
+openspec/changes/agent-evidence-enhancements/specs/agent-evidence/spec.md
+  s_9bfa193f3f9e64::t_5fcedad2e88487 1-50
+openspec/changes/agent-evidence-enhancements/tasks.md
+  s_9bfa193f3f9e64::t_1e55997aa1f1a0 1-12
+openspec/changes/agent-learning-interview/design.md
+  s_9bfa193f3f9e64::t_23a17d919d21ae 1-59
+openspec/changes/agent-learning-interview/proposal.md
+  s_9bfa193f3f9e64::t_a18ae99d8c2c25 1-19
+openspec/changes/agent-learning-interview/specs/agent-learning/spec.md
+  s_9bfa193f3f9e64::t_0b4730562966e7 1-74
+openspec/changes/agent-learning-interview/tasks.md
+  s_9bfa193f3f9e64::t_b8edd2770d227e 1-58
+openspec/changes/agent-rollout-acceptance/design.md
+  s_9bfa193f3f9e64::t_5cfa88ff598b21 1-25
+openspec/changes/agent-rollout-acceptance/proposal.md
+  s_9bfa193f3f9e64::t_dc58414690c055 1-7
+openspec/changes/agent-rollout-acceptance/specs/rollout/spec.md
+  s_9bfa193f3f9e64::t_63d83d433a4e4f 1-8
+openspec/changes/agent-rollout-acceptance/tasks.md
+  s_9bfa193f3f9e64::t_4d6fe9bed3181f 1-11
+openspec/changes/agentscope-delegation-20261010/design.md
+  s_9bfa193f3f9e64::t_d6ed0928ef63d8 1-7
+openspec/changes/agentscope-delegation-20261010/proposal.md
+  s_9bfa193f3f9e64::t_132b6ef04bfff8 1-16
+openspec/changes/agentscope-delegation-20261010/specs/agent-delegation/spec.md
+  s_9bfa193f3f9e64::t_ba8af28cfe5898 1-46
+openspec/changes/agentscope-delegation-20261010/tasks.md
+  s_9bfa193f3f9e64::t_f5699d0588f834 1-10
+openspec/changes/agentscope-dts-engineering-review-20261008/design.md
+  s_9bfa193f3f9e64::t_10a04afa157c03 1-25
+openspec/changes/agentscope-dts-engineering-review-20261008/proposal.md
+  s_9bfa193f3f9e64::t_39b2dee2e25c7c 1-9
+openspec/changes/agentscope-dts-engineering-review-20261008/specs/dts-engineering-review/spec.md
+  s_9bfa193f3f9e64::t_43bdb8c76e60be 1-53
+openspec/changes/agentscope-dts-engineering-review-20261008/tasks.md
+  s_9bfa193f3f9e64::t_93d7f44c2e81b7 1-12
+openspec/changes/agentscope-local-deployment-ui-20261008/.openspec.yaml
+  s_9bfa193f3f9e64::t_9c0dda55bd1e93 1-2
+openspec/changes/agentscope-local-deployment-ui-20261008/README.md
+  s_9bfa193f3f9e64::t_c8598118cf9d47 1-3
+openspec/changes/agentscope-local-deployment-ui-20261008/design.md
+  s_9bfa193f3f9e64::t_a6bb408ff7193a 1-56
+openspec/changes/agentscope-local-deployment-ui-20261008/proposal.md
+  s_9bfa193f3f9e64::t_13ed5760042e28 1-11
+openspec/changes/agentscope-local-deployment-ui-20261008/specs/local-deployment-ui/spec.md
+  s_9bfa193f3f9e64::t_c782844b169fb0 1-96
+openspec/changes/agentscope-local-deployment-ui-20261008/tasks.md
+  s_9bfa193f3f9e64::t_539fd5b4abb7ba 1-13
+openspec/changes/agentscope-local-plan-completion-20261008/design.md
+  s_9bfa193f3f9e64::t_b0ea9e34ccbc38 1-7
+openspec/changes/agentscope-local-plan-completion-20261008/proposal.md
+  s_9bfa193f3f9e64::t_f896f8101a75ec 1-7
+openspec/changes/agentscope-local-plan-completion-20261008/specs/local-plan/spec.md
+  s_9bfa193f3f9e64::t_4992246362b182 1-28
+openspec/changes/agentscope-local-plan-completion-20261008/tasks.md
+  s_9bfa193f3f9e64::t_917e2457e441ad 1-10
+openspec/changes/agentscope-next-iteration-20261008/design.md
+  s_9bfa193f3f9e64::t_e54b5f0dd3b163 1-17
+openspec/changes/agentscope-next-iteration-20261008/proposal.md
+  s_9bfa193f3f9e64::t_e81b06900d5a46 1-22
+openspec/changes/agentscope-next-iteration-20261008/specs/agent-next-iteration/spec.md
+  s_9bfa193f3f9e64::t_6eede27d043416 1-62
+openspec/changes/agentscope-next-iteration-20261008/tasks.md
+  s_9bfa193f3f9e64::t_c972c7078ccec5 1-14
+openspec/changes/agentscope-observability-stack-20261008/design.md
+  s_9bfa193f3f9e64::t_2589ecdf3f28a4 1-9
+openspec/changes/agentscope-observability-stack-20261008/proposal.md
+  s_9bfa193f3f9e64::t_7cc6aba452dfef 1-18
+openspec/changes/agentscope-observability-stack-20261008/specs/observability-stack/spec.md
+  s_9bfa193f3f9e64::t_e1476363b496d1 1-44
+openspec/changes/agentscope-observability-stack-20261008/tasks.md
+  s_9bfa193f3f9e64::t_cd3d41f8013aff 1-20
+openspec/changes/agentscope-only-runtime/design.md
+  s_9bfa193f3f9e64::t_77673ac4687a87 1-21
+openspec/changes/agentscope-only-runtime/proposal.md
+  s_9bfa193f3f9e64::t_ce5bb615fb73cf 1-7
+openspec/changes/agentscope-only-runtime/specs/agent-runtime/spec.md
+  s_9bfa193f3f9e64::t_34d86db817ce13 1-32
+openspec/changes/agentscope-only-runtime/tasks.md
+  s_9bfa193f3f9e64::t_26f91e57a07309 1-10
+openspec/changes/agentscope-otel-export-20261008/design.md
+  s_9bfa193f3f9e64::t_e89e0dd57096d2 1-17
+openspec/changes/agentscope-otel-export-20261008/proposal.md
+  s_9bfa193f3f9e64::t_b4ff58fb973d65 1-16
+openspec/changes/agentscope-otel-export-20261008/specs/agent-otel-export/spec.md
+  s_9bfa193f3f9e64::t_34904072be508b 1-39
+openspec/changes/agentscope-otel-export-20261008/tasks.md
+  s_9bfa193f3f9e64::t_2e1983ccd57d83 1-11
+openspec/changes/agentscope-quality-replay-review-20261008/design.md
+  s_9bfa193f3f9e64::t_08ba5181b5146a 1-25
+openspec/changes/agentscope-quality-replay-review-20261008/proposal.md
+  s_9bfa193f3f9e64::t_d91612304b8ba1 1-22
+openspec/changes/agentscope-quality-replay-review-20261008/specs/quality-replay-review/spec.md
+  s_9bfa193f3f9e64::t_6ece5bf5549c3f 1-65
+openspec/changes/agentscope-quality-replay-review-20261008/tasks.md
+  s_9bfa193f3f9e64::t_729889bb261b6a 1-18
+openspec/changes/agentscope-runtime-migration/design.md
+  s_9bfa193f3f9e64::t_730651325fd37e 1-63
+openspec/changes/agentscope-runtime-migration/proposal.md
+  s_9bfa193f3f9e64::t_d737340c4d6122 1-34
+openspec/changes/agentscope-runtime-migration/specs/agent-runtime/spec.md
+  s_9bfa193f3f9e64::t_a81814681babfe 1-170
+openspec/changes/agentscope-runtime-migration/tasks.md
+  s_9bfa193f3f9e64::t_13be7c0c7dad09 1-69
+openspec/changes/agentscope-sandbox-protocol-20261008/design.md
+  s_9bfa193f3f9e64::t_2636ff0f5ffd34 1-19
+openspec/changes/agentscope-sandbox-protocol-20261008/proposal.md
+  s_9bfa193f3f9e64::t_90adc0622bac21 1-17
+openspec/changes/agentscope-sandbox-protocol-20261008/specs/agent-sandbox/spec.md
+  s_9bfa193f3f9e64::t_eaf71bfe69e074 1-63
+openspec/changes/agentscope-sandbox-protocol-20261008/tasks.md
+  s_9bfa193f3f9e64::t_3d26d8384c6026 1-11
+openspec/changes/agentscope-sandbox-service-20261008/design.md
+  s_9bfa193f3f9e64::t_562acf2297b01c 1-13
+openspec/changes/agentscope-sandbox-service-20261008/proposal.md
+  s_9bfa193f3f9e64::t_7a60bb6172cf65 1-17
+openspec/changes/agentscope-sandbox-service-20261008/specs/agent-sandbox-service/spec.md
+  s_9bfa193f3f9e64::t_23f108fe5bc03a 1-63
+openspec/changes/agentscope-sandbox-service-20261008/tasks.md
+  s_9bfa193f3f9e64::t_f7fa4a43e44754 1-17
+openspec/changes/agentscope-target-binding-20261008/design.md
+  s_9bfa193f3f9e64::t_02c4194c825110 1-17
+openspec/changes/agentscope-target-binding-20261008/proposal.md
+  s_9bfa193f3f9e64::t_759be452e90378 1-16
+openspec/changes/agentscope-target-binding-20261008/specs/agent-target-binding/spec.md
+  s_9bfa193f3f9e64::t_073f0d4bc8f90a 1-53
+openspec/changes/agentscope-target-binding-20261008/tasks.md
+  s_9bfa193f3f9e64::t_bb4e5da34c31a5 1-19
+openspec/changes/architecture-viewer-20261015/design.md
+  s_9bfa193f3f9e64::t_1d0ebd0273a14e 1-11
+openspec/changes/architecture-viewer-20261015/proposal.md
+  s_9bfa193f3f9e64::t_c915c8da806ed9 1-26
+openspec/changes/architecture-viewer-20261015/specs/architecture-viewer/spec.md
+  s_9bfa193f3f9e64::t_fa84c74eb83e12 1-28
+openspec/changes/architecture-viewer-20261015/tasks.md
+  s_9bfa193f3f9e64::t_da681495b7c944 1-7
+openspec/changes/chat-text-streaming/design.md
+  s_9bfa193f3f9e64::t_fd1dd1134285eb 1-9
+openspec/changes/chat-text-streaming/proposal.md
+  s_9bfa193f3f9e64::t_128c0bb16ec551 1-5
+openspec/changes/chat-text-streaming/specs/chat-streaming/spec.md
+  s_9bfa193f3f9e64::t_c6bb90e4b83bfc 1-23
+openspec/changes/chat-text-streaming/tasks.md
+  s_9bfa193f3f9e64::t_516992738251c2 1-8
+openspec/changes/codex-chat-design-20261010/design.md
+  s_9bfa193f3f9e64::t_b6700bf08add10 1-33
+openspec/changes/codex-chat-design-20261010/proposal.md
+  s_9bfa193f3f9e64::t_8ff86b3527b14f 1-28
+openspec/changes/codex-chat-design-20261010/specs/chat-design/spec.md
+  s_9bfa193f3f9e64::t_b9b1247b722166 1-34
+openspec/changes/codex-chat-design-20261010/tasks.md
+  s_9bfa193f3f9e64::t_3c23c7d715db92 1-9
+openspec/changes/codex-chat-reliability-20261010/.openspec.yaml
+  s_9bfa193f3f9e64::t_f78233c48ff261 1-2
+openspec/changes/codex-chat-reliability-20261010/design.md
+  s_9bfa193f3f9e64::t_a812c107ec6f4c 1-19
+openspec/changes/codex-chat-reliability-20261010/proposal.md
+  s_9bfa193f3f9e64::t_86dd22313cff36 1-27
+openspec/changes/codex-chat-reliability-20261010/specs/chat-reliability/spec.md
+  s_9bfa193f3f9e64::t_c9ace5d49af533 1-47
+openspec/changes/codex-chat-reliability-20261010/tasks.md
+  s_9bfa193f3f9e64::t_6ed380764d227b 1-9
+openspec/changes/company-sandbox-poc-20261008/design.md
+  s_9bfa193f3f9e64::t_972933add4ed67 1-53
+openspec/changes/company-sandbox-poc-20261008/proposal.md
+  s_9bfa193f3f9e64::t_f68811c473c412 1-21
+openspec/changes/company-sandbox-poc-20261008/specs/company-sandbox-deployment/spec.md
+  s_9bfa193f3f9e64::t_6733ee51b25ebd 1-120
+openspec/changes/company-sandbox-poc-20261008/tasks.md
+  s_9bfa193f3f9e64::t_5823890215c3cc 1-35
+openspec/changes/document-center-20261009/.openspec.yaml
+  s_9bfa193f3f9e64::t_9a06281c03a48d 1-2
+openspec/changes/document-center-20261009/design.md
+  s_9bfa193f3f9e64::t_f7fd803b435a4e 1-7
+openspec/changes/document-center-20261009/proposal.md
+  s_9bfa193f3f9e64::t_a62f1d8e2aece2 1-7
+openspec/changes/document-center-20261009/specs/document-center/spec.md
+  s_9bfa193f3f9e64::t_e4457f27e583e2 1-26
+openspec/changes/document-center-20261009/tasks.md
+  s_9bfa193f3f9e64::t_9a213cb5fe5e5d 1-9
+openspec/changes/document-center-design-20261010/design.md
+  s_9bfa193f3f9e64::t_90c2884c2fe4e8 1-7
+openspec/changes/document-center-design-20261010/proposal.md
+  s_9bfa193f3f9e64::t_5fefa3eefc6c91 1-27
+openspec/changes/document-center-design-20261010/specs/document-center-design/spec.md
+  s_9bfa193f3f9e64::t_7a63579f2aa2b4 1-33
+openspec/changes/document-center-design-20261010/tasks.md
+  s_9bfa193f3f9e64::t_26bee54569147a 1-8
+openspec/changes/dts-independent-sandbox-20261009/design.md
+  s_9bfa193f3f9e64::t_cf4f6a62badf18 1-11
+openspec/changes/dts-independent-sandbox-20261009/proposal.md
+  s_9bfa193f3f9e64::t_97e453c20a14f3 1-7
+openspec/changes/dts-independent-sandbox-20261009/specs/dts-independent-sandbox/spec.md
+  s_9bfa193f3f9e64::t_d6acbec2f8cbe9 1-22
+openspec/changes/dts-independent-sandbox-20261009/specs/responses-sse/spec.md
+  s_9bfa193f3f9e64::t_5dedd1da245614 1-22
+openspec/changes/dts-independent-sandbox-20261009/tasks.md
+  s_9bfa193f3f9e64::t_1f3a51adc56884 1-17
+openspec/changes/dts-readonly-mcp/design.md
+  s_9bfa193f3f9e64::t_d8911c94333333 1-14
+openspec/changes/dts-readonly-mcp/proposal.md
+  s_9bfa193f3f9e64::t_5e61269cab2465 1-9
+openspec/changes/dts-readonly-mcp/specs/dts-status/spec.md
+  s_9bfa193f3f9e64::t_bb50345283a289 1-21
+openspec/changes/dts-readonly-mcp/tasks.md
+  s_9bfa193f3f9e64::t_6ed782bed2c4dd 1-13
+openspec/changes/execution-panorama/design.md
+  s_9bfa193f3f9e64::t_e4e44e76f5191c 1-17
+openspec/changes/execution-panorama/proposal.md
+  s_9bfa193f3f9e64::t_99225f0e8a8f20 1-7
+openspec/changes/execution-panorama/specs/execution-panorama/spec.md
+  s_9bfa193f3f9e64::t_6bae8c6417dd66 1-19
+openspec/changes/execution-panorama/tasks.md
+  s_9bfa193f3f9e64::t_0f515d14fb6b1f 1-12
+openspec/changes/independent-agent-review/design.md
+  s_9bfa193f3f9e64::t_a07eec033a7e2d 1-17
+openspec/changes/independent-agent-review/proposal.md
+  s_9bfa193f3f9e64::t_d1bbdc5ae4975c 1-9
+openspec/changes/independent-agent-review/specs/agent-review/spec.md
+  s_9bfa193f3f9e64::t_ec9fb9bc134cab 1-25
+openspec/changes/independent-agent-review/tasks.md
+  s_9bfa193f3f9e64::t_eeaab82594b76d 1-12
+openspec/changes/inspection-notifications/design.md
+  s_9bfa193f3f9e64::t_6f0848000faccf 1-21
+openspec/changes/inspection-notifications/proposal.md
+  s_9bfa193f3f9e64::t_b69ddfb350ab71 1-7
+openspec/changes/inspection-notifications/specs/notifications/spec.md
+  s_9bfa193f3f9e64::t_423b28b60023bf 1-10
+openspec/changes/inspection-notifications/tasks.md
+  s_9bfa193f3f9e64::t_fff65287383ddc 1-8
+openspec/changes/model-reasoning-effort-20261009/design.md
+  s_9bfa193f3f9e64::t_9ecb58e940229f 1-5
+openspec/changes/model-reasoning-effort-20261009/proposal.md
+  s_9bfa193f3f9e64::t_17399e8fc2a3fe 1-3
+openspec/changes/model-reasoning-effort-20261009/specs/reasoning-effort/spec.md
+  s_9bfa193f3f9e64::t_12d4bab9a0f0c2 1-19
+openspec/changes/model-reasoning-effort-20261009/tasks.md
+  s_9bfa193f3f9e64::t_b498cf22477f25 1-7
+openspec/changes/readable-request-flow-20261015/design.md
+  s_9bfa193f3f9e64::t_c835419802a317 1-7
+openspec/changes/readable-request-flow-20261015/proposal.md
+  s_9bfa193f3f9e64::t_2f7fe4f749c74f 1-16
+openspec/changes/readable-request-flow-20261015/specs/request-flow/spec.md
+  s_9bfa193f3f9e64::t_92497f01c09057 1-28
+openspec/changes/readable-request-flow-20261015/tasks.md
+  s_9bfa193f3f9e64::t_0600448672f570 1-10
+openspec/changes/repository-documentation-20261010/proposal.md
+  s_9bfa193f3f9e64::t_f0728b79bff7a2 1-14
+openspec/changes/repository-documentation-20261010/specs/repository-documentation/spec.md
+  s_9bfa193f3f9e64::t_332d1656c73347 1-18
+openspec/changes/repository-documentation-20261010/tasks.md
+  s_9bfa193f3f9e64::t_575595ce99a596 1-5
+openspec/changes/responses-retry-policy-20261009/proposal.md
+  s_9bfa193f3f9e64::t_f94bb98f68ff0a 1-5
+openspec/changes/responses-retry-policy-20261009/specs/model-retry/spec.md
+  s_9bfa193f3f9e64::t_8fbd4ef0be4f7d 1-19
+openspec/changes/responses-retry-policy-20261009/tasks.md
+  s_9bfa193f3f9e64::t_b31cb4b222aa16 1-7
+openspec/changes/responses-stream-recovery-20261009/proposal.md
+  s_9bfa193f3f9e64::t_c3d1ad26cc3ec1 1-5
+openspec/changes/responses-stream-recovery-20261009/specs/stream-recovery/spec.md
+  s_9bfa193f3f9e64::t_802b49e547d2f8 1-26
+openspec/changes/responses-stream-recovery-20261009/tasks.md
+  s_9bfa193f3f9e64::t_a01aa217662aeb 1-8
+openspec/config.yaml
+  s_9bfa193f3f9e64::t_75fe5484f384e0 1
+package-lock.json
+  s_9bfa193f3f9e64::t_e0d5278867ac22 1-3138
+package.json
+  s_9bfa193f3f9e64::t_a7a0de32219f93 1-102
+scripts/accept-agent-candidate.mjs
+  s_9bfa193f3f9e64::t_8423f0bb8b1020 1-41
+scripts/accept-agent-sandbox.mjs
+  s_9bfa193f3f9e64::t_d24cc9a6caa657 1-209
+scripts/accept-observability.mjs
+  s_9bfa193f3f9e64::t_7a325810732aac 1-167
+scripts/agent-acceptance.mjs
+  s_9bfa193f3f9e64::t_5c5813dbbcad7d 1-188
+scripts/agent-candidate.mjs
+  s_9bfa193f3f9e64::t_338a828c174afe 1-27
+scripts/agent-quality-corpus.mjs
+  s_9bfa193f3f9e64::t_b9b37faeb3f54b 1-94
+scripts/agent-quality.mjs
+  s_9bfa193f3f9e64::t_98271673618cb0 1-31
+scripts/agent-selector-browser-smoke.mjs
+  s_9bfa193f3f9e64::t_593bc441740db0 1-56
+scripts/architecture-browser-smoke.mjs
+  s_9bfa193f3f9e64::t_bf73049344192f 1-131
+scripts/audit-agent-image.mjs
+  s_9bfa193f3f9e64::t_e684388bbd1d90 1-40
+scripts/audit-agent-worker.mjs
+  s_9bfa193f3f9e64::t_66c75e2815c524 1-18
+scripts/benchmark-agent-runtime.mjs
+  s_9bfa193f3f9e64::t_e88b604a0691c1 1-24
+scripts/browser-smoke.mjs
+  s_9bfa193f3f9e64::t_0c848e22d3466e 1-257
+scripts/build-docs.mjs
+  s_9bfa193f3f9e64::t_ff70ff197d3ee7 1-133
+scripts/build-request-flow.mjs
+  s_9bfa193f3f9e64::t_ad1527d473fd8c 1-27
+scripts/chat-cleanup-browser-smoke.mjs
+  s_9bfa193f3f9e64::t_e6db42405ec1d3 1-41
+scripts/chat-design-browser-smoke.mjs
+  s_9bfa193f3f9e64::t_e53c52600bf32d 1-165
+scripts/check-agent-worker.mjs
+  s_9bfa193f3f9e64::t_3f0bdda6d581e8 1-18
+scripts/check-observability-targets.mjs
+  s_9bfa193f3f9e64::t_27e60699c8925e 1-8
+scripts/codemap.md
+  s_9bfa193f3f9e64::t_f5a776f1e64c27 1-100
+scripts/company-sandbox-export-model.mjs
+  s_9bfa193f3f9e64::t_bf6d723def45b2 1-71
+scripts/company-sandbox-package.mjs
+  s_9bfa193f3f9e64::t_98c222f536fb22 1-58
+scripts/delegation-browser-smoke.mjs
+  s_9bfa193f3f9e64::t_742f00a02d4dd5 1-216
+scripts/delegation-runtime-browser-smoke.mjs
+  s_9bfa193f3f9e64::t_a3298a80c0ed64 1-92
+scripts/dev.mjs
+  s_9bfa193f3f9e64::t_5d7e6729d909aa 1-11
+scripts/documents-browser-smoke.mjs
+  s_9bfa193f3f9e64::t_3f6db17ccbe29b 1-214
+scripts/dts-evaluation-input.mjs
+  s_9bfa193f3f9e64::t_14fa90e76f9a79 1-14
+scripts/dts-local.mjs
+  s_9bfa193f3f9e64::t_21431e909f8a6d 1-80
+scripts/dts-sandbox-package.mjs
+  s_9bfa193f3f9e64::t_9345462408da33 1-35
+scripts/dts-target-real-acceptance.mjs
+  s_9bfa193f3f9e64::t_7ffb085de9f00a 1-459
+scripts/evaluate-agent-enhancements.mjs
+  s_9bfa193f3f9e64::t_fb1db9e2d04f69 1-66
+scripts/evaluate-agent-runtime.mjs
+  s_9bfa193f3f9e64::t_141e8706a9db06 1-44
+scripts/evaluate-dts-runtime.mjs
+  s_9bfa193f3f9e64::t_8f6dcfb1a67768 1-136
+scripts/evaluate-quality-replay.mjs
+  s_9bfa193f3f9e64::t_974f98c7c56be3 1-150
+scripts/evaluate-saved-model.mjs
+  s_9bfa193f3f9e64::t_517152b60482c7 1-66
+scripts/evaluate.mjs
+  s_9bfa193f3f9e64::t_7b9f67858cbe15 1-27
+scripts/http-request-id-browser-smoke.mjs
+  s_9bfa193f3f9e64::t_93cdc536ba869f 1-157
+scripts/learn-agent-context.mjs
+  s_9bfa193f3f9e64::t_fce3217f8a1b48 1-369
+scripts/learn-agent-intent.mjs
+  s_9bfa193f3f9e64::t_2fd13b58f28669 1-319
+scripts/learn-agent-react.mjs
+  s_9bfa193f3f9e64::t_6bc7e5eef78615 1-244
+scripts/learn-agent-review.mjs
+  s_9bfa193f3f9e64::t_9927dbd5bcadd3 1-392
+scripts/learn-agent-trace.mjs
+  s_9bfa193f3f9e64::t_f34fd49b6f670c 1-209
+scripts/learn-agent-unknown.mjs
+  s_9bfa193f3f9e64::t_617d1efeba10dc 1-374
+scripts/learning-browser-smoke.mjs
+  s_9bfa193f3f9e64::t_b926d81036cab7 1-262
+scripts/load-test.mjs
+  s_9bfa193f3f9e64::t_a4ab2ba8b23c27 1-25
+scripts/local-deployment-browser-smoke.mjs
+  s_9bfa193f3f9e64::t_5eca28fa4087d7 1-343
+scripts/model-billing.mjs
+  s_9bfa193f3f9e64::t_9d88c17013b223 1-141
+scripts/notification-smoke.mjs
+  s_9bfa193f3f9e64::t_56ee533de4ff02 1-226
+scripts/observability-stack.mjs
+  s_9bfa193f3f9e64::t_61e132c979dace 1-25
+scripts/ops.mjs
+  s_9bfa193f3f9e64::t_e67591a44c1bb2 1-42
+scripts/panorama-browser-smoke.mjs
+  s_9bfa193f3f9e64::t_de33af4f335c7f 1-306
+scripts/panorama-real-acceptance.mjs
+  s_9bfa193f3f9e64::t_5e5c8c7b556136 1-433
+scripts/probe-agent-sandbox.mjs
+  s_9bfa193f3f9e64::t_058c3864c5d24f 1-127
+scripts/quality-replay-cases.mjs
+  s_9bfa193f3f9e64::t_48f237627a7ed5 1-38
+scripts/quality-replay-review.mjs
+  s_9bfa193f3f9e64::t_db7a66108e6495 1-170
+scripts/reasoning-effort-browser-smoke.mjs
+  s_9bfa193f3f9e64::t_619ada4fe2fffa 1-118
+scripts/reconcile-model-billing.mjs
+  s_9bfa193f3f9e64::t_c545f4ea5ec443 1-17
+scripts/review-browser-smoke.mjs
+  s_9bfa193f3f9e64::t_38cd9a44325ef4 1-162
+scripts/review-quality-replay.mjs
+  s_9bfa193f3f9e64::t_5ff3d9c771b8c1 1-42
+scripts/rollout-browser-smoke.mjs
+  s_9bfa193f3f9e64::t_816deb6f605c78 1-69
+scripts/sandbox-contract.mjs
+  s_9bfa193f3f9e64::t_cd893e147d582d 1-60
+scripts/scheduled-backup.mjs
+  s_9bfa193f3f9e64::t_9542869dcf8b1e 1-9
+scripts/smoke-agent-container.mjs
+  s_9bfa193f3f9e64::t_e37a8718c32383 1-89
+scripts/streaming-browser-smoke.mjs
+  s_9bfa193f3f9e64::t_51eb14cc78b27b 1-247
+scripts/target-binding-browser-smoke.mjs
+  s_9bfa193f3f9e64::t_18d207605a1f0d 1-180
+scripts/test-agentscope.mjs
+  s_9bfa193f3f9e64::t_3f7f8164b8ddc8 1-12
+scripts/workspace-settings-browser-smoke.mjs
+  s_9bfa193f3f9e64::t_0bf1eb8d9a6b72 1-106
+server/agent-context.mjs
+  s_9bfa193f3f9e64::t_c49d5b0f353042 1-29
+server/agent-delegation.mjs
+  s_9bfa193f3f9e64::t_8dca5d5762eada 1-289
+server/agent-review.mjs
+  s_9bfa193f3f9e64::t_14ddd250f54099 1-95
+server/agent-rollout.mjs
+  s_9bfa193f3f9e64::t_976432dfc226f7 1-130
+server/agent-runtime/agentscope.mjs
+  s_9bfa193f3f9e64::t_7712bb6d63bb32 1-75
+server/agent-runtime/codemap.md
+  s_9bfa193f3f9e64::t_e3ad38fd88c7d3 1-40
+server/agent-runtime/driver.mjs
+  s_9bfa193f3f9e64::t_1fd719c4735e46 1-51
+server/agent-runtime/index.mjs
+  s_9bfa193f3f9e64::t_ad10d0cf55157b 1-151
+server/agent-runtime/pool.mjs
+  s_9bfa193f3f9e64::t_3f6705568b27b8 1-225
+server/agent-runtime/probe.mjs
+  s_9bfa193f3f9e64::t_54076ede234cc8 1-16
+server/agent-runtime/protocol.mjs
+  s_9bfa193f3f9e64::t_f150c11f1ace86 1-34
+server/agent-trace.mjs
+  s_9bfa193f3f9e64::t_093260c521757f 1-120
+server/agent.mjs
+  s_9bfa193f3f9e64::t_a996a749af7c46 1-413
+server/app.mjs
+  s_9bfa193f3f9e64::t_d7647d4f30855e 1-83
+server/auth.mjs
+  s_9bfa193f3f9e64::t_78b0ffab2463fb 1-89
+server/backup.mjs
+  s_9bfa193f3f9e64::t_8b122ddb346933 1-81
+server/codemap.md
+  s_9bfa193f3f9e64::t_c2a4eba286f4c6 1-96
+server/diagram-assets.mjs
+  s_9bfa193f3f9e64::t_6b18c54f11d043 1-23
+server/documents.mjs
+  s_9bfa193f3f9e64::t_6ffa1b0f26af30 1-147
+server/evidence-report.mjs
+  s_9bfa193f3f9e64::t_0dfbf0eb37e71b 1-22
+server/execution.mjs
+  s_9bfa193f3f9e64::t_2e52f2e1787d3e 1-366
+server/governance.mjs
+  s_9bfa193f3f9e64::t_b9ecb147f5917b 1-61
+server/index.mjs
+  s_9bfa193f3f9e64::t_757be6b2bf9d49 1-29
+server/inspection.mjs
+  s_9bfa193f3f9e64::t_0fc37f3ee80583 1-58
+server/local-services.mjs
+  s_9bfa193f3f9e64::t_904ed66abceb25 1-187
+server/mcp.mjs
+  s_9bfa193f3f9e64::t_fb74a3d254c955 1-67
+server/model-retry.mjs
+  s_9bfa193f3f9e64::t_29d39acfd093a8 1-31
+server/model-stream.mjs
+  s_9bfa193f3f9e64::t_6a921bf21b3b2f 1-79
+server/model.mjs
+  s_9bfa193f3f9e64::t_b7c5f1c232deb1 1-271
+server/notifications.mjs
+  s_9bfa193f3f9e64::t_aaa8f7eba4b57c 1-226
+server/operations.mjs
+  s_9bfa193f3f9e64::t_585842cec16cfd 1-103
+server/otel-export.mjs
+  s_9bfa193f3f9e64::t_9333dd81a1cc80 1-131
+server/request-policy.mjs
+  s_9bfa193f3f9e64::t_db1cb42e642c36 1-7
+server/resources.mjs
+  s_9bfa193f3f9e64::t_0013fe3db279af 1-144
+server/retrieval.mjs
+  s_9bfa193f3f9e64::t_553df0b00267bb 1-43
+server/runbooks.mjs
+  s_9bfa193f3f9e64::t_7aaacd0789c8be 1-78
+server/scheduler.mjs
+  s_9bfa193f3f9e64::t_4f7cfc92886ea2 1-175
+server/security.mjs
+  s_9bfa193f3f9e64::t_7f186ca32ac8f6 1-105
+server/skill-package.mjs
+  s_9bfa193f3f9e64::t_6ae1a804a86f59 1-66
+server/store.mjs
+  s_9bfa193f3f9e64::t_16188681e79d80 1-183
+server/target-binding.mjs
+  s_9bfa193f3f9e64::t_09fadd93837965 1-35
+src/App.tsx
+  s_9bfa193f3f9e64::t_ef1e71f7b32e87 1-140
+src/agent-learning.css
+  s_9bfa193f3f9e64::t_034c66b80c5830 1-92
+src/agent-learning.ts
+  s_9bfa193f3f9e64::t_7d5f6d4b468774 1-123
+src/agentscope-guide.css
+  s_9bfa193f3f9e64::t_c530ed50909714 1-160
+src/api.ts
+  s_9bfa193f3f9e64::t_799d0fc5c17d73 1-176
+src/assets/baixiaosheng.svg
+  s_9bfa193f3f9e64::t_d4d1d29e4637ef 1-10
+src/backend.css
+  s_9bfa193f3f9e64::t_b9e5500a931116 1-2
+src/chat-design.css
+  s_9bfa193f3f9e64::t_8685f681cc665c 1-209
+src/codemap.md
+  s_9bfa193f3f9e64::t_2c001aede4684b 1-81
+src/components/AgentLearning.tsx
+  s_9bfa193f3f9e64::t_2c6e22c882270a 1-83
+src/components/AgentReview.tsx
+  s_9bfa193f3f9e64::t_e157c1a3b2606c 1-35
+src/components/AgentScopeGuide.tsx
+  s_9bfa193f3f9e64::t_3c0f681c7a4376 1-134
+src/components/AgentSelector.tsx
+  s_9bfa193f3f9e64::t_8884da7cab944c 1-85
+src/components/Auth.tsx
+  s_9bfa193f3f9e64::t_6399ad0169e645 1-27
+src/components/BrandMark.tsx
+  s_9bfa193f3f9e64::t_ab866d1df9bf83 1-6
+src/components/Chat.tsx
+  s_9bfa193f3f9e64::t_7eb2f4a0d95c7d 1-182
+src/components/ChatRunStatus.tsx
+  s_9bfa193f3f9e64::t_63803b0e79a380 1-32
+src/components/DocumentCenter.tsx
+  s_9bfa193f3f9e64::t_e1bc4b39244938 1-187
+src/components/EvidenceReport.tsx
+  s_9bfa193f3f9e64::t_83bdf5faa02399 1-26
+src/components/ExecutionCenter.tsx
+  s_9bfa193f3f9e64::t_2ea580901f49a8 1-34
+src/components/ExecutionPanorama.tsx
+  s_9bfa193f3f9e64::t_d5c5c3a5203fcb 1-287
+src/components/Guidance.tsx
+  s_9bfa193f3f9e64::t_082d377f87ceb0 1-15
+src/components/LocalDeployment.tsx
+  s_9bfa193f3f9e64::t_ea2bfb09a8cd88 1-132
+src/components/Notifications.tsx
+  s_9bfa193f3f9e64::t_3ec9b86ac7edcc 1-62
+src/components/ReasoningEffortControl.tsx
+  s_9bfa193f3f9e64::t_3e12ac5699d124 1-77
+src/components/ResourceEditor.tsx
+  s_9bfa193f3f9e64::t_3e386f0502aa42 1-101
+src/components/Runbooks.tsx
+  s_9bfa193f3f9e64::t_78a2e192d1f61f 1-18
+src/components/RuntimeRollout.tsx
+  s_9bfa193f3f9e64::t_33e81c525b8188 1-59
+src/components/Sessions.tsx
+  s_9bfa193f3f9e64::t_928e37f273f24c 1-11
+src/components/Settings.tsx
+  s_9bfa193f3f9e64::t_3446885d51470e 1-61
+src/components/TargetBindingControl.tsx
+  s_9bfa193f3f9e64::t_b240e0321fd898 1-97
+src/components/TaskNotificationFields.tsx
+  s_9bfa193f3f9e64::t_926fbde0f07724 1-47
+src/components/Tasks.tsx
+  s_9bfa193f3f9e64::t_e25b0a3603071b 1-43
+src/components/ToolCatalog.tsx
+  s_9bfa193f3f9e64::t_c885897ef6372e 1-32
+src/components/codemap.md
+  s_9bfa193f3f9e64::t_b38069f9f3104c 1-115
+src/components/ui.tsx
+  s_9bfa193f3f9e64::t_faa55429049394 1-40
+src/data.ts
+  s_9bfa193f3f9e64::t_215029df5acf9f 1-37
+src/document-center.css
+  s_9bfa193f3f9e64::t_7dafacfac8ed58 1-137
+src/local-deployment.css
+  s_9bfa193f3f9e64::t_8ef89f736f9544 1-71
+src/main.tsx
+  s_9bfa193f3f9e64::t_915313e52e98cc 1-10
+src/notifications.css
+  s_9bfa193f3f9e64::t_5030e6a5baa1c3 1-2
+src/panorama.css
+  s_9bfa193f3f9e64::t_66377fb890f740 1-180
+src/production.css
+  s_9bfa193f3f9e64::t_0fad85a4d7f380 1-12
+src/request-id.ts
+  s_9bfa193f3f9e64::t_269a39ae11767d 1-14
+src/settings.css
+  s_9bfa193f3f9e64::t_1268b566365c97 1-80
+src/stream-reveal.ts
+  s_9bfa193f3f9e64::t_e5b88d39500f4d 1-51
+src/styles.css
+  s_9bfa193f3f9e64::t_eb82bc3377e5bd 1
+src/vite-env.d.ts
+  s_9bfa193f3f9e64::t_8daa481f38c6d6 1
+src/workspace.css
+  s_9bfa193f3f9e64::t_f7ebd430b80730 1-261
+tests/agent-acceptance.test.mjs
+  s_9bfa193f3f9e64::t_d17ab437d6aa2e 1-179
+tests/agent-candidate.test.mjs
+  s_9bfa193f3f9e64::t_2c01c76d780181 1-15
+tests/agent-delegation.test.mjs
+  s_9bfa193f3f9e64::t_7fb76c7dac79eb 1-724
+tests/agent-enhancements.test.mjs
+  s_9bfa193f3f9e64::t_4e874e91da1dce 1-170
+tests/agent-otel.test.mjs
+  s_9bfa193f3f9e64::t_4dbeda59d3bdae 1-127
+tests/agent-pool-protocol.test.mjs
+  s_9bfa193f3f9e64::t_c31cce58618f66 1-86
+tests/agent-quality.test.mjs
+  s_9bfa193f3f9e64::t_bb0e4af1b024f6 1-114
+tests/agent-review-security.test.mjs
+  s_9bfa193f3f9e64::t_cb7d5e64768a8a 1-134
+tests/agent-review.test.mjs
+  s_9bfa193f3f9e64::t_51e505cf35b7c9 1-252
+tests/agent-rollout.test.mjs
+  s_9bfa193f3f9e64::t_ac2ad2dd33890f 1-166
+tests/agent-runtime.test.mjs
+  s_9bfa193f3f9e64::t_851c6b871c0b8d 1-181
+tests/agent-sandbox-mcp.test.mjs
+  s_9bfa193f3f9e64::t_99515f0a2a3ecf 1-102
+tests/agent-sandbox.test.mjs
+  s_9bfa193f3f9e64::t_ba2d659b59f651 1-182
+tests/agent-target-binding.test.mjs
+  s_9bfa193f3f9e64::t_1c06ae6dbb4726 1-162
+tests/agent-trace.test.mjs
+  s_9bfa193f3f9e64::t_0ca418eed8a6cf 1-244
+tests/agentscope/pool.test.mjs
+  s_9bfa193f3f9e64::t_e0aa894d6c65ff 1-187
+tests/agentscope/recovery.test.mjs
+  s_9bfa193f3f9e64::t_f5b50f5d6036ff 1-50
+tests/agentscope/rollout.test.mjs
+  s_9bfa193f3f9e64::t_68d8c6a3e84b43 1-54
+tests/agentscope/runtime.test.mjs
+  s_9bfa193f3f9e64::t_860677b6b4e6fa 1-140
+tests/chat-acceptance.test.mjs
+  s_9bfa193f3f9e64::t_668593b61b5488 1-30
+tests/chat-client.test.mjs
+  s_9bfa193f3f9e64::t_aaabf3cf2cba1d 1-73
+tests/chat-stream.test.mjs
+  s_9bfa193f3f9e64::t_e0e5d416b05896 1-157
+tests/company-sandbox-download-ranges.test.mjs
+  s_9bfa193f3f9e64::t_f0866108162718 1-56
+tests/company-sandbox-dts.test.mjs
+  s_9bfa193f3f9e64::t_852ae5e5a00842 1-87
+tests/company-sandbox-export-model.test.mjs
+  s_9bfa193f3f9e64::t_d580f11bcc9735 1-60
+tests/company-sandbox-package.test.mjs
+  s_9bfa193f3f9e64::t_d085791495e316 1-39
+tests/company-sandbox-reasoning.test.mjs
+  s_9bfa193f3f9e64::t_d1d1af5eab213d 1-58
+tests/company-sandbox-store.test.mjs
+  s_9bfa193f3f9e64::t_5781560d313f9f 1-145
+tests/company-sandbox-wheel-plan.test.mjs
+  s_9bfa193f3f9e64::t_d9027c456d8679 1-45
+tests/diagram-assets.test.mjs
+  s_9bfa193f3f9e64::t_27e3d5330c792c 1-29
+tests/dts-evaluation-cases.mjs
+  s_9bfa193f3f9e64::t_898bc967f8360b 1-51
+tests/dts-evaluation.test.mjs
+  s_9bfa193f3f9e64::t_3a67f3dd0875b5 1-121
+tests/dts-mcp.test.mjs
+  s_9bfa193f3f9e64::t_9ea84cc9f15c3e 1-241
+tests/dts-target-real-acceptance.test.mjs
+  s_9bfa193f3f9e64::t_6da798f2ffb41a 1-100
+tests/evaluation-cases.json
+  s_9bfa193f3f9e64::t_d54a7c94658758 1-6
+tests/execution.test.mjs
+  s_9bfa193f3f9e64::t_433cf543c99d02 1-252
+tests/fixtures.mjs
+  s_9bfa193f3f9e64::t_4bb69b5330b396 1-56
+tests/fixtures/otel-collector.yaml
+  s_9bfa193f3f9e64::t_595b20f3824af4 1-15
+tests/integration.test.mjs
+  s_9bfa193f3f9e64::t_d6cd512b121336 1-185
+tests/local-services.test.mjs
+  s_9bfa193f3f9e64::t_fbb3f31f322dbb 1-227
+tests/mcp-evidence.test.mjs
+  s_9bfa193f3f9e64::t_aa68b18f805ae3 1-66
+tests/model-billing.test.mjs
+  s_9bfa193f3f9e64::t_66041bd7d4d031 1-77
+tests/model-retry-policy.test.mjs
+  s_9bfa193f3f9e64::t_269201a7efa796 1-26
+tests/model-retry.test.mjs
+  s_9bfa193f3f9e64::t_cc1fe403ebd919 1-139
+tests/model-stream.test.mjs
+  s_9bfa193f3f9e64::t_ac476a080dd478 1-214
+tests/model.test.mjs
+  s_9bfa193f3f9e64::t_c467a6c1ec3400 1-227
+tests/notifications.test.mjs
+  s_9bfa193f3f9e64::t_0eca33ce0323ec 1-226
+tests/observability-stack.test.mjs
+  s_9bfa193f3f9e64::t_a1dfb4605c3ebe 1-28
+tests/operations.test.mjs
+  s_9bfa193f3f9e64::t_4136e2c4bf7727 1-73
+tests/quality-cases.json
+  s_9bfa193f3f9e64::t_afc61f01d80947 1-27
+tests/quality-provenance.json
+  s_9bfa193f3f9e64::t_8a519cceef642f 1-14
+tests/quality-replay-review.test.mjs
+  s_9bfa193f3f9e64::t_4d0cfad03e3daf 1-278
+tests/quality-replay.test.mjs
+  s_9bfa193f3f9e64::t_dc22dbe415ed99 1-75
+tests/responses-fixture.mjs
+  s_9bfa193f3f9e64::t_f8c397ba8f0d7e 1-42
+tests/retry-lifetime.test.mjs
+  s_9bfa193f3f9e64::t_7235c3dc424c23 1-29
+tests/runtime-fixture.mjs
+  s_9bfa193f3f9e64::t_f8377e8dab1009 1-41
+tests/sandbox-contract.test.mjs
+  s_9bfa193f3f9e64::t_9a604efb8f2f27 1-57
+tests/saved-model-evaluation.test.mjs
+  s_9bfa193f3f9e64::t_f778e11c8273ab 1-53
+tests/scenarios.test.mjs
+  s_9bfa193f3f9e64::t_4ea29237205abc 1-54
+tests/security.test.mjs
+  s_9bfa193f3f9e64::t_29ba94faec1afe 1-110
+tests/skill-package.test.mjs
+  s_9bfa193f3f9e64::t_a29d3e18ba99da 1-56
+tests/skill-zip-fixture.mjs
+  s_9bfa193f3f9e64::t_68533661d9e74f 1-13
+tests/stream-reveal.test.mjs
+  s_9bfa193f3f9e64::t_1517a71b40a554 1-46
+tests/task-target-binding.test.mjs
+  s_9bfa193f3f9e64::t_52b145912d7324 1-70
+tsconfig.json
+  s_9bfa193f3f9e64::t_050ce8dab01f0a 1
+vite.config.ts
+  s_9bfa193f3f9e64::t_a4975f72ded6a1 1-26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ccda25f3353d6af478c438e44402e20f8a99bcd0",
+  "prompts": {},
+  "sessions": {
+    "s_9bfa193f3f9e64": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a2070c-deab-7ac1-bc46-a2e75bbb3fa8",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "yupeng.li <yupeng.li@ly.com>"
+    }
+  }
+}
